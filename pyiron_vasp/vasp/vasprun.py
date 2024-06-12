@@ -219,8 +219,8 @@ class Vasprun(object):
                                         species_dict[species_key]["n_atoms"] = int(
                                             elements[0].text
                                         )
-                                        species_dict[species_key]["valence"] = (
-                                            float(elements[3].text)
+                                        species_dict[species_key]["valence"] = float(
+                                            elements[3].text
                                         )
                                 else:
                                     species_key = elements[1].text
@@ -644,7 +644,9 @@ class Vasprun(object):
 
         """
         # try:
-        el_list = [el.split("_")[0] for el in self.vasprun_dict["atominfo"]["species_list"]]
+        el_list = [
+            el.split("_")[0] for el in self.vasprun_dict["atominfo"]["species_list"]
+        ]
         cell = self.vasprun_dict["init_structure"]["cell"]
         positions = self.vasprun_dict["init_structure"]["positions"]
         if len(positions[positions > 1.01]) > 0:
