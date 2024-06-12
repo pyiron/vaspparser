@@ -79,6 +79,27 @@ def get_species_list_from_potcar(filename="POTCAR"):
     return species_list
 
 
+def get_number_species_atoms(structure):
+    """
+    Returns a dictionary with the species in the structure and the corresponding count in the structure
+
+    Args:
+        structure
+
+    Returns:
+        collections.OrderedDict: An ordered dictionary with the species and the corresponding count
+
+    """
+    count = OrderedDict()
+    # print "sorted: ", sorted(set(self.elements))
+    for el in sorted(set(structure.get_chemical_symbols())):
+        count[el] = 0
+
+    for el in structure.get_chemical_symbols():
+        count[el] += 1
+    return count
+
+
 def write_poscar(structure, filename="POSCAR", write_species=True, cartesian=True):
     """
     Writes a POSCAR type file from a structure object
@@ -98,7 +119,7 @@ def write_poscar(structure, filename="POSCAR", write_species=True, cartesian=Tru
         for a_i in structure.get_cell():
             x, y, z = a_i
             f.write("{0:.15f} {1:.15f} {2:.15f}".format(x, y, z) + endline)
-        atom_numbers = structure.get_number_species_atoms()
+        atom_numbers = get_number_species_atoms(structure=structure)
         if write_species:
             f.write(" ".join(atom_numbers.keys()) + endline)
         num_str = [str(val) for val in atom_numbers.values()]
@@ -111,7 +132,7 @@ def write_poscar(structure, filename="POSCAR", write_species=True, cartesian=Tru
         sorted_coords = list()
         selec_dyn_lst = list()
         for species in atom_numbers.keys():
-            indices = structure.select_index(species)
+            indices = structure.symbols.indices()[species]
             for i in indices:
                 if cartesian:
                     sorted_coords.append(structure.positions[i])
@@ -226,12 +247,12 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
             selective_dynamics, axis=0, return_counts=True, return_inverse=True
         )
         count_index = np.argmax(counts)
-        atoms.add_tag(selective_dynamics=unique_sel_dyn.tolist()[count_index])
-        is_not_majority = np.arange(len(unique_sel_dyn), dtype=int) != count_index
-        for i, val in enumerate(unique_sel_dyn):
-            if is_not_majority[i]:
-                for key in np.argwhere(inverse == i).flatten():
-                    atoms.selective_dynamics[int(key)] = val.tolist()
+        # atoms.add_tag(selective_dynamics=unique_sel_dyn.tolist()[count_index])
+        # is_not_majority = np.arange(len(unique_sel_dyn), dtype=int) != count_index
+        # for i, val in enumerate(unique_sel_dyn):
+        #     if is_not_majority[i]:
+        #         for key in np.argwhere(inverse == i).flatten():
+        #             atoms.selective_dynamics[int(key)] = val.tolist()
     if read_velocities:
         velocity_index = position_index + n_atoms + 1
         for i in range(velocity_index, velocity_index + n_atoms):
@@ -329,10 +350,10 @@ def vasp_sorter(structure):
         list: A list of indices which is sorted by the corresponding species for writing to POSCAR
 
     """
-    atom_numbers = structure.get_number_species_atoms()
+    atom_numbers = get_number_species_atoms(structure)
     sorted_indices = list()
     for species in atom_numbers.keys():
-        indices = structure.select_index(species)
+        indices = structure.symbols.indices()[species]
         for i in indices:
             sorted_indices.append(i)
     return np.array(sorted_indices)

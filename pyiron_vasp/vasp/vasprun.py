@@ -643,26 +643,26 @@ class Vasprun(object):
             pyiron.atomistics.structure.atoms.Atoms: The initial structure
 
         """
-        try:
-            el_list = self.vasprun_dict["atominfo"]["species_list"]
-            cell = self.vasprun_dict["init_structure"]["cell"]
-            positions = self.vasprun_dict["init_structure"]["positions"]
-            if len(positions[positions > 1.01]) > 0:
-                basis = Atoms(el_list, positions=positions, cell=cell, pbc=True)
-            else:
-                basis = Atoms(el_list, scaled_positions=positions, cell=cell, pbc=True)
-            if "selective_dynamics" in self.vasprun_dict["init_structure"].keys():
-                basis.add_tag(selective_dynamics=[True, True, True])
-                for i, val in enumerate(
-                    self.vasprun_dict["init_structure"]["selective_dynamics"]
-                ):
-                    basis[i].selective_dynamics = val
-            return basis
-        except KeyError:
-            warnings.warn(
-                "The initial structure could not be extracted from vasprun properly"
-            )
-            return
+        # try:
+        el_list = [el.split("_")[0] for el in self.vasprun_dict["atominfo"]["species_list"]]
+        cell = self.vasprun_dict["init_structure"]["cell"]
+        positions = self.vasprun_dict["init_structure"]["positions"]
+        if len(positions[positions > 1.01]) > 0:
+            basis = Atoms(el_list, positions=positions, cell=cell, pbc=True)
+        else:
+            basis = Atoms(el_list, scaled_positions=positions, cell=cell, pbc=True)
+        # if "selective_dynamics" in self.vasprun_dict["init_structure"].keys():
+        #     basis.add_tag(selective_dynamics=[True, True, True])
+        #     for i, val in enumerate(
+        #         self.vasprun_dict["init_structure"]["selective_dynamics"]
+        #     ):
+        #         basis[i].selective_dynamics = val
+        return basis
+        # except KeyError:
+        #     warnings.warn(
+        #         "The initial structure could not be extracted from vasprun properly"
+        #     )
+        #     return
 
     def get_final_structure(self):
         """
@@ -672,17 +672,17 @@ class Vasprun(object):
             pyiron.atomistics.structure.atoms.Atoms: The final structure
 
         """
-        try:
-            basis = self.get_initial_structure()
-            basis.set_cell(self.vasprun_dict["final_structure"]["cell"])
-            positions = self.vasprun_dict["final_structure"]["positions"]
-            if len(positions[positions > 1.01]) > 0:
-                basis.positions = positions
-            else:
-                basis.set_scaled_positions(positions)
-            return basis
-        except (KeyError, AttributeError, ValueError):
-            return
+        # try:
+        basis = self.get_initial_structure()
+        basis.set_cell(self.vasprun_dict["final_structure"]["cell"])
+        positions = self.vasprun_dict["final_structure"]["positions"]
+        if len(positions[positions > 1.01]) > 0:
+            basis.positions = positions
+        else:
+            basis.set_scaled_positions(positions)
+        return basis
+        # except (KeyError, AttributeError, ValueError):
+        #     return
 
     def get_electronic_structure(self):
         """
