@@ -4,13 +4,10 @@
 
 import os
 
-# import xml.etree.cElementTree as ETree
+from ase.atoms import Atoms
 import numpy as np
 from collections import OrderedDict
-from pyiron_atomistics.atomistics.structure.atoms import Atoms
-from pyiron_atomistics.atomistics.structure.periodic_table import PeriodicTable
-from pyiron_base import state
-from pyiron_atomistics.dft.waves.electronic import ElectronicStructure
+from pyiron_vasp.dft.waves.electronic import ElectronicStructure
 import defusedxml.cElementTree as ETree
 from defusedxml.ElementTree import ParseError
 import warnings
@@ -206,7 +203,6 @@ class Vasprun(object):
                             for sp in item:
                                 elements = sp
                                 if elements[1].text in species_dict.keys():
-                                    pse = PeriodicTable()
                                     count = 1
                                     not_unique = True
                                     species_key = None
@@ -219,16 +215,11 @@ class Vasprun(object):
                                         else:
                                             count += 1
                                     if species_key is not None:
-                                        pse.add_element(
-                                            clean_character(elements[1].text),
-                                            species_key,
-                                        )
-                                        special_element = pse.element(species_key)
-                                        species_dict[special_element] = dict()
-                                        species_dict[special_element]["n_atoms"] = int(
+                                        species_dict[species_key] = dict()
+                                        species_dict[species_key]["n_atoms"] = int(
                                             elements[0].text
                                         )
-                                        species_dict[special_element]["valence"] = (
+                                        species_dict[species_key]["valence"] = (
                                             float(elements[3].text)
                                         )
                                 else:
@@ -668,7 +659,7 @@ class Vasprun(object):
                     basis[i].selective_dynamics = val
             return basis
         except KeyError:
-            state.logger.warning(
+            warnings.warn(
                 "The initial structure could not be extracted from vasprun properly"
             )
             return

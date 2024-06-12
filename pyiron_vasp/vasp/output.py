@@ -3,27 +3,16 @@ import os
 import posixpath
 import numpy as np
 
-from pyiron_atomistics.atomistics.structure.atoms import (
-    Atoms,
-    structure_dict_to_hdf,
-    dict_group_to_hdf,
-)
-from pyiron_base import state
-from pyiron_atomistics.vasp.parser.outcar import Outcar, OutcarCollectError
-from pyiron_atomistics.vasp.parser.oszicar import Oszicar
-from pyiron_atomistics.vasp.procar import Procar
-from pyiron_atomistics.vasp.structure import read_atoms, vasp_sorter
-from pyiron_atomistics.vasp.vasprun import Vasprun as Vr
-from pyiron_atomistics.vasp.vasprun import VasprunError, VasprunWarning
-from pyiron_atomistics.vasp.volumetric_data import (
-    VaspVolumetricData,
-    volumetric_data_dict_to_hdf,
-)
-from pyiron_atomistics.dft.bader import Bader
-from pyiron_atomistics.dft.waves.electronic import (
-    ElectronicStructure,
-    electronic_structure_dict_to_hdf,
-)
+from ase.atoms import Atoms
+from pyiron_vasp.vasp.parser.outcar import Outcar, OutcarCollectError
+from pyiron_vasp.vasp.parser.oszicar import Oszicar
+from pyiron_vasp.vasp.procar import Procar
+from pyiron_vasp.vasp.structure import read_atoms, vasp_sorter
+from pyiron_vasp.vasp.vasprun import Vasprun as Vr
+from pyiron_vasp.vasp.vasprun import VasprunError, VasprunWarning
+from pyiron_vasp.vasp.volumetric_data import VaspVolumetricData
+from pyiron_vasp.dft.bader import Bader
+from pyiron_vasp.dft.waves.electronic import ElectronicStructure
 import warnings
 
 
@@ -88,7 +77,7 @@ class Output:
                 self.outcar.from_file(filename=posixpath.join(directory, "OUTCAR"))
                 outcar_working = True
             except OutcarCollectError as e:
-                state.logger.warning(f"OUTCAR present, but could not be parsed: {e}!")
+                warnings.warn(f"OUTCAR present, but could not be parsed: {e}!")
                 outcar_working = False
         if "vasprun.xml" in files_present:
             try:
@@ -98,17 +87,13 @@ class Output:
                         filename=posixpath.join(directory, "vasprun.xml")
                     )
                     if any([isinstance(warn.category, VasprunWarning) for warn in w]):
-                        state.logger.warning(
-                            "vasprun.xml parsed but with some inconsistencies. "
-                            "Check vasp output to be sure"
-                        )
                         warnings.warn(
                             "vasprun.xml parsed but with some inconsistencies. "
                             "Check vasp output to be sure",
                             VasprunWarning,
                         )
             except VasprunError:
-                state.logger.warning(
+                warnings.warn(
                     "Unable to parse the vasprun.xml file. Will attempt to get data from OUTCAR"
                 )
             else:
@@ -379,44 +364,6 @@ class Output:
             hdf5_output["outcar"] = self.outcar.to_dict_minimal()
         return hdf5_output
 
-    def to_hdf(self, hdf):
-        """
-        Save the object in a HDF5 file
-
-        Args:
-            hdf (pyiron_base.generic.hdfio.ProjectHDFio): HDF path to which the object is to be saved
-
-        """
-        output_dict_to_hdf(data_dict=self.to_dict(), hdf=hdf, group_name="output")
-
-    def from_hdf(self, hdf):
-        """
-        Reads the attributes and reconstructs the object from a hdf file
-        Args:
-            hdf: The hdf5 instance
-        """
-        with hdf.open("output") as hdf5_output:
-            # self.description = hdf5_output["description"]
-            if self.structure is None:
-                self.structure = Atoms()
-            self.structure.from_hdf(hdf5_output)
-            self.generic_output.from_hdf(hdf5_output)
-            try:
-                if "electrostatic_potential" in hdf5_output.list_groups():
-                    self.electrostatic_potential.from_hdf(
-                        hdf5_output, group_name="electrostatic_potential"
-                    )
-                if "charge_density" in hdf5_output.list_groups():
-                    self.charge_density.from_hdf(
-                        hdf5_output, group_name="charge_density"
-                    )
-                if "electronic_structure" in hdf5_output.list_groups():
-                    self.electronic_structure.from_hdf(hdf=hdf5_output)
-                if "outcar" in hdf5_output.list_groups():
-                    self.outcar.from_hdf(hdf=hdf5_output, group_name="outcar")
-            except (TypeError, IOError, ValueError):
-                state.logger.warning("Routine from_hdf() not completely successful")
-
 
 class GenericOutput:
     """
@@ -442,18 +389,6 @@ class GenericOutput:
     def bands(self, val):
         self._bands = val
 
-    def to_hdf(self, hdf):
-        """
-        Save the object in a HDF5 file
-
-        Args:
-            hdf (pyiron_base.generic.hdfio.ProjectHDFio): HDF path to which the object is to be saved
-
-        """
-        generic_output_dict_to_hdf(
-            data_dict=self.to_dict(), hdf=hdf, group_name="generic"
-        )
-
     def to_dict(self):
         hdf_go, hdf_dft = {}, {}
         for key, val in self.log_dict.items():
@@ -464,26 +399,6 @@ class GenericOutput:
         if self.bands.eigenvalue_matrix is not None:
             hdf_go["dft"]["bands"] = self.bands.to_dict()
         return hdf_go
-
-    def from_hdf(self, hdf):
-        """
-        Reads the attributes and reconstructs the object from a hdf file
-        Args:
-            hdf: The hdf5 instance
-        """
-        with hdf.open("generic") as hdf_go:
-            for node in hdf_go.list_nodes():
-                if node == "description":
-                    # self.description = hdf_go[node]
-                    pass
-                else:
-                    self.log_dict[node] = hdf_go[node]
-            if "dft" in hdf_go.list_groups():
-                with hdf_go.open("dft") as hdf_dft:
-                    for node in hdf_dft.list_nodes():
-                        self.dft_log_dict[node] = hdf_dft[node]
-                    if "bands" in hdf_dft.list_groups():
-                        self.bands.from_hdf(hdf_dft, "bands")
 
 
 class DFTOutput:
@@ -528,76 +443,6 @@ class DFTOutput:
 
 class VaspCollectError(ValueError):
     pass
-
-
-def generic_output_dict_to_hdf(data_dict, hdf, group_name="generic"):
-    with hdf.open(group_name) as hdf_go:
-        for k, v in data_dict.items():
-            if k not in ["dft"]:
-                hdf_go[k] = v
-
-        with hdf_go.open("dft") as hdf_dft:
-            for k, v in data_dict["dft"].items():
-                if k not in ["bands"]:
-                    hdf_dft[k] = v
-
-            if "bands" in data_dict["dft"].keys():
-                electronic_structure_dict_to_hdf(
-                    data_dict=data_dict["dft"]["bands"],
-                    hdf=hdf_dft,
-                    group_name="bands",
-                )
-
-
-def output_dict_to_hdf(data_dict, hdf, group_name="output"):
-    with hdf.open(group_name) as hdf5_output:
-        for k, v in data_dict.items():
-            if k not in [
-                "generic",
-                "structure",
-                "electrostatic_potential",
-                "charge_density",
-                "electronic_structure",
-                "outcar",
-            ]:
-                hdf5_output[k] = v
-
-        if "generic" in data_dict.keys():
-            generic_output_dict_to_hdf(
-                data_dict=data_dict["generic"],
-                hdf=hdf5_output,
-                group_name="generic",
-            )
-
-        if "structure" in data_dict.keys():
-            structure_dict_to_hdf(
-                data_dict=data_dict["structure"],
-                hdf=hdf5_output,
-                group_name="structure",
-            )
-
-        if "electrostatic_potential" in data_dict.keys():
-            volumetric_data_dict_to_hdf(
-                data_dict=data_dict["electrostatic_potential"],
-                hdf=hdf5_output,
-                group_name="electrostatic_potential",
-            )
-
-        if "charge_density" in data_dict.keys():
-            volumetric_data_dict_to_hdf(
-                data_dict=data_dict["charge_density"],
-                hdf=hdf5_output,
-                group_name="charge_density",
-            )
-
-        if "electronic_structure" in data_dict.keys():
-            electronic_structure_dict_to_hdf(
-                data_dict=data_dict["electronic_structure"],
-                hdf=hdf5_output,
-                group_name="electronic_structure",
-            )
-
-        dict_group_to_hdf(data_dict=data_dict, hdf=hdf5_output, group="outcar")
 
 
 def parse_vasp_output(

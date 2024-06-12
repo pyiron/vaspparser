@@ -2,16 +2,16 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
+import os
 import math
+import warnings
 
 import numpy as np
-import os
-from pyiron_base import state
-from pyiron_atomistics.vasp.structure import (
+from pyiron_vasp.vasp.structure import (
     atoms_from_string,
     get_species_list_from_potcar,
 )
-from pyiron_atomistics.atomistics.volumetric.generic import VolumetricData
+from pyiron_vasp.dft.volumetric import VolumetricData
 
 __author__ = "Sudarsan Surendralal"
 __copyright__ = (
@@ -79,7 +79,7 @@ class VaspVolumetricData(VolumetricData):
 
         """
         if os.stat(filename).st_size == 0:
-            state.logger.warning("File:" + filename + "seems to be corrupted/empty")
+            warnings.warn("File:" + filename + "seems to be corrupted/empty")
             return None, None
         poscar_read = False
         poscar_string = list()
@@ -139,7 +139,7 @@ class VaspVolumetricData(VolumetricData):
             if not normalize:
                 volume = 1.0
             if len(all_dataset) == 0:
-                state.logger.warning("File:" + filename + "seems to be corrupted/empty")
+                warnings.warn("File:" + filename + "seems to be corrupted/empty")
                 return None, None
             if len(all_dataset) == 2:
                 data = {
@@ -166,7 +166,7 @@ class VaspVolumetricData(VolumetricData):
 
         """
         if not os.path.getsize(filename) > 0:
-            state.logger.warning("File:" + filename + "seems to be empty! ")
+            warnings.warn("File:" + filename + "seems to be empty! ")
             return None, None
         with open(filename, "r") as f:
             struct_lines = list()
@@ -222,7 +222,7 @@ class VaspVolumetricData(VolumetricData):
                             total_data /= atoms.get_volume()
                         total_data_list.append(total_data)
             if len(total_data_list) == 0:
-                state.logger.warning(
+                warnings.warn(
                     "File:"
                     + filename
                     + "seems to be corrupted/empty even after parsing!"

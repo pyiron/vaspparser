@@ -3,8 +3,8 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 from collections import OrderedDict
+from ase.atoms import Atoms
 import numpy as np
-from pyiron_atomistics.atomistics.structure.atoms import Atoms
 import warnings
 
 __author__ = "Sudarsan Surendralal"

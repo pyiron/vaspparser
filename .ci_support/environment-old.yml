@@ -1,26 +1,9 @@
 channels:
 - conda-forge
 dependencies:
-- aimsgb =1.0.2
 - ase =3.22.1
-- atomistics =0.1.27
 - defusedxml =0.7.0
-- h5py =3.9.0
 - matplotlib-base =3.5.3
-- mendeleev =0.12.0
-- mp-api =0.37.0
 - numpy =1.26.0
 - pandas =2.0.3
-- phonopy =2.20.0
-- pint =0.18
-- pyiron_base =0.8.1
-- pyiron_snippets =0.1.1
-- pylammpsmpi =0.2.12
-- pyscal =2.10.15
-- monty =2024.3.31
-- pyxtal =0.6.1
-- scikit-learn =1.2.1
 - scipy =1.11.1
-- seekpath =1.9.5
-- spglib =2.0.2
-- structuretoolkit =0.0.19
