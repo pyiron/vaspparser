@@ -69,12 +69,12 @@ jobs:
           pip install . --no-deps --no-build-isolation
           coverage run --omit="pyiron_vasp/_version.py,tests/*" -m unittest discover tests
           coverage xml
-      - name: Coveralls
-        if: matrix.label == 'linux-64-py-3-12'
-        uses: coverallsapp/github-action@v2
-      - name: Codacy
-        if:  matrix.label == 'linux-64-py-3-12' && github.event_name != 'push'
-        continue-on-error: True
-        shell: bash -l {0}
-        run: |
-          python-codacy-coverage -r coverage.xml
+      # - name: Coveralls
+      #   if: matrix.label == 'linux-64-py-3-12'
+      #   uses: coverallsapp/github-action@v2
+      # - name: Codacy
+      #   if:  matrix.label == 'linux-64-py-3-12' && github.event_name != 'push'
+      #   continue-on-error: True
+      #   shell: bash -l {0}
+      #   run: |
+      #     python-codacy-coverage -r coverage.xml
