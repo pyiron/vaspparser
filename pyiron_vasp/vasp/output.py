@@ -54,7 +54,9 @@ class Output:
         """
         self._structure = atoms
 
-    def collect(self, directory=os.getcwd(), sorted_indices=None, es_class=ElectronicStructure):
+    def collect(
+        self, directory=os.getcwd(), sorted_indices=None, es_class=ElectronicStructure
+    ):
         """
         Collects output from the working directory
 
@@ -443,7 +445,9 @@ def parse_vasp_output(
     output_parser.structure = structure.copy()
     try:
         output_parser.collect(
-            directory=working_directory, sorted_indices=sorted_indices, es_class=es_class
+            directory=working_directory,
+            sorted_indices=sorted_indices,
+            es_class=es_class,
         )
     except VaspCollectError:
         raise
