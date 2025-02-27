@@ -10,7 +10,6 @@ from pyiron_vasp.vasp.volumetric_data import VaspVolumetricData
 
 
 class TestVaspVolumetricData(unittest.TestCase):
-
     """
     Testing routines in the vasp/structure module.
     """
