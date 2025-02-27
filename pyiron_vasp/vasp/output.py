@@ -54,7 +54,7 @@ class Output:
         """
         self._structure = atoms
 
-    def collect(self, directory=os.getcwd(), sorted_indices=None):
+    def collect(self, directory=os.getcwd(), sorted_indices=None, es_class=ElectronicStructure):
         """
         Collects output from the working directory
 
@@ -175,7 +175,9 @@ class Output:
             )
             # log_dict["scf_energies"] = self.vp_new.vasprun_dict["scf_energies"]
             # log_dict["scf_dipole_moments"] = self.vp_new.vasprun_dict["scf_dipole_moments"]
-            self.electronic_structure = self.vp_new.get_electronic_structure()
+            self.electronic_structure = self.vp_new.get_electronic_structure(
+                es_class=es_class,
+            )
             if self.electronic_structure.grand_dos_matrix is not None:
                 self.electronic_structure.grand_dos_matrix[
                     :, :, :, sorted_indices, :
@@ -409,6 +411,7 @@ def parse_vasp_output(
     structure: Atoms = None,
     sorted_indices: list = None,
     read_atoms_funct: callable = read_atoms,
+    es_class=ElectronicStructure,
 ) -> dict:
     """
     Parse the VASP output in the working_directory and return it as hierachical dictionary.
@@ -440,7 +443,7 @@ def parse_vasp_output(
     output_parser.structure = structure.copy()
     try:
         output_parser.collect(
-            directory=working_directory, sorted_indices=sorted_indices
+            directory=working_directory, sorted_indices=sorted_indices, es_class=es_class
         )
     except VaspCollectError:
         raise

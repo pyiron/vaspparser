@@ -686,7 +686,7 @@ class Vasprun(object):
         # except (KeyError, AttributeError, ValueError):
         #     return
 
-    def get_electronic_structure(self):
+    def get_electronic_structure(self, es_class=ElectronicStructure):
         """
         Get's the electronic structure from the VASP calculation
 
@@ -694,7 +694,7 @@ class Vasprun(object):
             pyiron.atomistics.waves.electronic.ElectronicStructure: The electronic structure object
 
         """
-        es_obj = ElectronicStructure()
+        es_obj = es_class()
         es_obj.kpoint_list = self.vasprun_dict["kpoints"]["kpoint_list"]
         es_obj.kpoint_weights = self.vasprun_dict["kpoints"]["kpoint_weights"]
         es_obj.eigenvalue_matrix = self.vasprun_dict["grand_eigenvalue_matrix"]
