@@ -485,6 +485,31 @@ class Outcar(object):
         )
 
     @staticmethod
+    def get_ediel_sol(filename="OUTCAR", lines=None):
+        """
+        Gets the ediel_sol for every ionic step from the OUTCAR file
+
+        Args:
+            filename (str): Filename of the OUTCAR file to parse
+            lines (list/None): lines read from the file
+
+        Returns:
+            numpy.ndarray: A 1xM array of the total energies in $eV$
+
+            where M is the number of time steps
+        """
+
+        def get_ediel_sol_from_line(line):
+            return float(_clean_line(line.strip()).split()[-1])
+
+        trigger_indices, lines = _get_trigger(
+            lines=lines,
+            filename=filename,
+            trigger="Solvation  Ediel_sol  = ",
+        )
+        return np.array([get_ediel_sol_from_line(lines[j]) for j in trigger_indices])
+
+    @staticmethod
     def get_all_total_energies(filename="OUTCAR", lines=None):
         """
         Gets the energy at every electronic step
