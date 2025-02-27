@@ -31,7 +31,6 @@ class Output:
         self.outcar = Outcar()
         self.oszicar = Oszicar()
         self.generic_output = GenericOutput()
-        self.dft_output = DFTOutput()
         self.description = (
             "This contains all the output static from this particular vasp run"
         )
@@ -401,52 +400,12 @@ class GenericOutput:
         return hdf_go
 
 
-class DFTOutput:
-    """
-    This class stores the DFT specific output
-
-    Attributes:
-        log_dict (dict): A dictionary of all tags and values of DFT data
-    """
-
-    def __init__(self):
-        self.log_dict = dict()
-        self.description = "contains DFT specific output"
-
-    def to_hdf(self, hdf):
-        """
-        Save the object in a HDF5 file
-
-        Args:
-            hdf (pyiron_base.generic.hdfio.ProjectHDFio): HDF path to which the object is to be saved
-
-        """
-        with hdf.open("dft") as hdf_dft:
-            # hdf_go["description"] = self.description
-            for key, val in self.log_dict.items():
-                hdf_dft[key] = val
-
-    def from_hdf(self, hdf):
-        """
-        Reads the attributes and reconstructs the object from a hdf file
-        Args:
-            hdf: The hdf5 instance
-        """
-        with hdf.open("dft") as hdf_dft:
-            for node in hdf_dft.list_nodes():
-                if node == "description":
-                    # self.description = hdf_go[node]
-                    pass
-                else:
-                    self.log_dict[node] = hdf_dft[node]
-
-
 class VaspCollectError(ValueError):
     pass
 
 
 def parse_vasp_output(
-    working_directory: str, structure: Atoms = None, sorted_indices: list = None
+    working_directory: str, structure: Atoms = None, sorted_indices: list = None, read_atoms_funct: callable = read_atoms
 ) -> dict:
     """
     Parse the VASP output in the working_directory and return it as hierachical dictionary.
@@ -463,11 +422,11 @@ def parse_vasp_output(
     if structure is None or len(structure) == 0:
         try:
             structure = get_final_structure_from_file(
-                working_directory=working_directory, filename="CONTCAR"
+                working_directory=working_directory, filename="CONTCAR", read_atoms_funct=read_atoms_funct,
             )
         except IOError:
             structure = get_final_structure_from_file(
-                working_directory=working_directory, filename="POSCAR"
+                working_directory=working_directory, filename="POSCAR", read_atoms_funct=read_atoms_funct,
             )
     if sorted_indices is None:
         sorted_indices = np.array(range(len(structure)))
@@ -485,6 +444,7 @@ def parse_vasp_output(
             filename="CONTCAR",
             structure=structure,
             sorted_indices=sorted_indices,
+            read_atoms_funct=read_atoms_funct,
         )
     except (IOError, ValueError, FileNotFoundError):
         pass
@@ -515,7 +475,7 @@ def parse_vasp_output(
 
 
 def get_final_structure_from_file(
-    working_directory, filename="CONTCAR", structure=None, sorted_indices=None
+    working_directory, filename="CONTCAR", structure=None, sorted_indices=None, read_atoms_funct=read_atoms
 ):
     """
     Get the final structure of the simulation usually from the CONTCAR file
@@ -531,14 +491,14 @@ def get_final_structure_from_file(
         sorted_indices = vasp_sorter(structure)
     if structure is None:
         try:
-            output_structure = read_atoms(filename=filename)
+            output_structure = read_atoms_funct(filename=filename)
             input_structure = output_structure.copy()
         except (IndexError, ValueError, IOError):
             raise IOError("Unable to read output structure")
     else:
         input_structure = structure.copy()
         try:
-            output_structure = read_atoms(
+            output_structure = read_atoms_funct(
                 filename=filename,
                 species_list=input_structure.get_parent_symbols(),
             )
