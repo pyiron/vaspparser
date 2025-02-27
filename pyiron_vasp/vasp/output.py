@@ -405,7 +405,10 @@ class VaspCollectError(ValueError):
 
 
 def parse_vasp_output(
-    working_directory: str, structure: Atoms = None, sorted_indices: list = None, read_atoms_funct: callable = read_atoms
+    working_directory: str,
+    structure: Atoms = None,
+    sorted_indices: list = None,
+    read_atoms_funct: callable = read_atoms,
 ) -> dict:
     """
     Parse the VASP output in the working_directory and return it as hierachical dictionary.
@@ -422,11 +425,15 @@ def parse_vasp_output(
     if structure is None or len(structure) == 0:
         try:
             structure = get_final_structure_from_file(
-                working_directory=working_directory, filename="CONTCAR", read_atoms_funct=read_atoms_funct,
+                working_directory=working_directory,
+                filename="CONTCAR",
+                read_atoms_funct=read_atoms_funct,
             )
         except IOError:
             structure = get_final_structure_from_file(
-                working_directory=working_directory, filename="POSCAR", read_atoms_funct=read_atoms_funct,
+                working_directory=working_directory,
+                filename="POSCAR",
+                read_atoms_funct=read_atoms_funct,
             )
     if sorted_indices is None:
         sorted_indices = np.array(range(len(structure)))
@@ -475,7 +482,11 @@ def parse_vasp_output(
 
 
 def get_final_structure_from_file(
-    working_directory, filename="CONTCAR", structure=None, sorted_indices=None, read_atoms_funct=read_atoms
+    working_directory,
+    filename="CONTCAR",
+    structure=None,
+    sorted_indices=None,
+    read_atoms_funct=read_atoms,
 ):
     """
     Get the final structure of the simulation usually from the CONTCAR file
