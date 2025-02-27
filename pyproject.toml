@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyiron_vasp"
-description = "An interface to atomistic simulation codes including but not limited to GPAW, LAMMPS, S/Phi/nX and VASP."
+description = "Parser for the Vienna Ab initio Simulation Package (VASP)"
 authors = [
-    { name = "Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department", email = "pyiron@mpie.de" },
+    { name = "Jan Janssen", email = "janssen@mpie.de" },
 ]
 readme = "README.md"
 license = { file = "LICENSE" }
