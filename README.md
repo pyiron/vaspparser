@@ -1,4 +1,8 @@
 # pyiron_vasp
+
+[![Pipeline](https://github.com/pyiron/pyiron_vasp/actions/workflows/pipeline.yml/badge.svg)](https://github.com/pyiron/pyiron_vasp/actions/workflows/pipeline.yml)
+[![codecov](https://codecov.io/gh/pyiron/pyiron_vasp/graph/badge.svg?token=PWWLjnbDJz)](https://codecov.io/gh/pyiron/pyiron_vasp)
+
 Parser for the Vienna Ab initio Simulation Package (VASP)
 
 ## Installation 
