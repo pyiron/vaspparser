@@ -242,17 +242,7 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
     except ValueError:
         atoms = _dict_to_atoms(atoms_dict, read_from_first_line=True)
     if atoms_dict["selective_dynamics"]:
-        selective_dynamics = np.array(selective_dynamics)
-        unique_sel_dyn, inverse, counts = np.unique(
-            selective_dynamics, axis=0, return_counts=True, return_inverse=True
-        )
-        count_index = np.argmax(counts)
-        # atoms.add_tag(selective_dynamics=unique_sel_dyn.tolist()[count_index])
-        # is_not_majority = np.arange(len(unique_sel_dyn), dtype=int) != count_index
-        # for i, val in enumerate(unique_sel_dyn):
-        #     if is_not_majority[i]:
-        #         for key in np.argwhere(inverse == i).flatten():
-        #             atoms.selective_dynamics[int(key)] = val.tolist()
+        raise ValueError("Selective Dynamics is currently not supported")
     if read_velocities:
         velocity_index = position_index + n_atoms + 1
         for i in range(velocity_index, velocity_index + n_atoms):
