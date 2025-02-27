@@ -109,7 +109,7 @@ jobs:
         python .ci_support/pyironconfig.py
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
-        coverage run --omit="pyiron_base/_version.py,tests/*" -m unittest discover tests/unit
+        coverage run --omit="pyiron_vasp/_version.py,tests/*" -m unittest discover tests
         coverage xml
     - name: Upload coverage reports to Codecov
       if: matrix.label == 'linux-64-py-3-12'
@@ -138,7 +138,7 @@ jobs:
         python .ci_support/pyironconfig.py
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
-        python -m unittest discover tests/unit
+        python -m unittest discover tests
 
   autobot:
     needs: [unittest_old, unittest_matrix, pip_check]
