@@ -414,6 +414,7 @@ def parse_vasp_output(
     sorted_indices: list = None,
     read_atoms_funct: callable = read_atoms,
     es_class=ElectronicStructure,
+    bader_class=Bader,
 ) -> dict:
     """
     Parse the VASP output in the working_directory and return it as hierachical dictionary.
@@ -467,7 +468,7 @@ def parse_vasp_output(
     if os.path.isfile(os.path.join(working_directory, "AECCAR0")) and os.path.isfile(
         os.path.join(working_directory, "AECCAR2")
     ):
-        bader = Bader(working_directory=working_directory, structure=structure)
+        bader = bader_class(working_directory=working_directory, structure=structure)
         try:
             charges_orig, volumes_orig = bader.compute_bader_charges()
         except ValueError:
