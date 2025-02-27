@@ -624,9 +624,9 @@ class ElectronicStructure(object):
                     )
                 else:
                     output_string.append(
-                        "spin {}:".format(spin) + " Is a metal: "
-                        "{}".format(is_metal) + " Band gap (ev) "
-                        "{}".format(self.eg[spin])
+                        "spin {}:".format(spin)
+                        + " Is a metal: {}".format(is_metal)
+                        + " Band gap (ev) {}".format(self.eg[spin])
                     )
         except ValueError:
             pass
