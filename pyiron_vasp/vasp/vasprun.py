@@ -656,7 +656,8 @@ class Vasprun(object):
             basis = Atoms(el_list, scaled_positions=positions, cell=cell, pbc=True)
         if "selective_dynamics" in self.vasprun_dict["init_structure"].keys():
             constraints_dict = {
-                label: [] for label in ["TTT", "TTF", "FTT", "TFT", "TFF", "FFT", "FTF", "FFF"]
+                label: []
+                for label in ["TTT", "TTF", "FTT", "TFT", "TFF", "FFT", "FTF", "FFF"]
             }
             for i, val in enumerate(
                 self.vasprun_dict["init_structure"]["selective_dynamics"]
@@ -684,23 +685,41 @@ class Vasprun(object):
             for k, v in constraints_dict.items():
                 if len(v) > 0:
                     if k == "TTT":
-                        constraints_lst.append(FixCartesian(a=v, mask=(False, False, False)))
+                        constraints_lst.append(
+                            FixCartesian(a=v, mask=(False, False, False))
+                        )
                     elif k == "TTF":
-                        constraints_lst.append(FixCartesian(a=v, mask=(False, False, True)))
+                        constraints_lst.append(
+                            FixCartesian(a=v, mask=(False, False, True))
+                        )
                     elif k == "FTT":
-                        constraints_lst.append(FixCartesian(a=v, mask=(True, False, False)))
+                        constraints_lst.append(
+                            FixCartesian(a=v, mask=(True, False, False))
+                        )
                     elif k == "TFT":
-                        constraints_lst.append(FixCartesian(a=v, mask=(False, True, False)))
+                        constraints_lst.append(
+                            FixCartesian(a=v, mask=(False, True, False))
+                        )
                     elif k == "TFF":
-                        constraints_lst.append(FixCartesian(a=v, mask=(False, True, True)))
+                        constraints_lst.append(
+                            FixCartesian(a=v, mask=(False, True, True))
+                        )
                     elif k == "FTF":
-                        constraints_lst.append(FixCartesian(a=v, mask=(True, False, True)))
+                        constraints_lst.append(
+                            FixCartesian(a=v, mask=(True, False, True))
+                        )
                     elif k == "FFT":
-                        constraints_lst.append(FixCartesian(a=v, mask=(True, True, False)))
+                        constraints_lst.append(
+                            FixCartesian(a=v, mask=(True, True, False))
+                        )
                     elif k == "FFF":
-                        constraints_lst.append(FixCartesian(a=v, mask=(True, True, True)))
+                        constraints_lst.append(
+                            FixCartesian(a=v, mask=(True, True, True))
+                        )
                     else:
-                        raise ValueError("Selective Dynamics Error: " + str(k) + ": " + str(v))
+                        raise ValueError(
+                            "Selective Dynamics Error: " + str(k) + ": " + str(v)
+                        )
 
             basis.set_constraint(constraints_lst)
         return basis
