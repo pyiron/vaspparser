@@ -8,6 +8,7 @@ import posixpath
 import numpy as np
 
 from ase.atoms import Atoms
+from ase.constraints import FixCartesian
 from pyiron_vasp.vasp.structure import (
     read_atoms,
     write_poscar,
@@ -49,7 +50,7 @@ class TestVaspStructure(unittest.TestCase):
                     if "diff_species" in poscar_file:
                         for _ in range(10):
                             atoms = atoms_from_string(string=lines)
-                            # self.assertEqual(atoms.indices.tolist(), [0, 1, 2])
+                            self.assertEqual([a.index for a in atoms], [0, 1, 2])
                             self.assertEqual(
                                 " ".join(atoms.get_chemical_symbols()),
                                 " ".join(["Ca", "Mg", "Al"]),
@@ -86,34 +87,38 @@ class TestVaspStructure(unittest.TestCase):
                 atoms, velocities = read_atoms(filename=f, return_velocities=True)
                 self.assertEqual(len(atoms), 19)
                 self.assertEqual(np.shape(velocities), (19, 3))
-                # self.assertEqual(len(atoms.selective_dynamics), 19)
+                fixed_atoms, not_fixed_atoms = [], []
+                for con in atoms.constraints:
+                    c = con.todict()
+                    if np.all(c["kwargs"]["mask"]):
+                        fixed_atoms = c["kwargs"]["a"]
                 self.assertEqual(len(atoms.symbols.indices()["Mg"]), 10)
                 neon_indices = atoms.symbols.indices()["Ne"]
-                hydrogen_indices = atoms.symbols.indices()["H"]
-                oxygen_indices = atoms.symbols.indices()["O"]
+                magnesium_indices = atoms.symbols.indices()["Mg"]
                 truth_array = np.empty_like(atoms.positions[neon_indices], dtype=bool)
                 truth_array[:, :] = True
-                # sel_dyn = np.array(atoms.selective_dynamics)
-                # self.assertTrue(
-                #     np.array_equal(sel_dyn[neon_indices], np.logical_not(truth_array))
-                # )
-                truth_array = np.empty_like(atoms.positions[oxygen_indices], dtype=bool)
-                truth_array[:, :] = True
-                # self.assertTrue(np.array_equal(sel_dyn[oxygen_indices], truth_array))
-                # truth_array = np.empty_like(
-                #     atoms.positions[hydrogen_indices], dtype=bool
-                # )
-                truth_array[:, :] = True
-                # self.assertTrue(np.array_equal(sel_dyn[hydrogen_indices], truth_array))
+                self.assertTrue(
+                    np.array_equal(
+                        fixed_atoms, magnesium_indices.tolist() + neon_indices.tolist()
+                    ),
+                )
                 velocities_neon = np.zeros_like(np.array(velocities)[neon_indices])
-                # self.assertTrue(
-                #     np.array_equal(np.array(velocities)[neon_indices], velocities_neon)
-                # )
+                self.assertTrue(
+                    np.array_equal(np.array(velocities)[neon_indices], velocities_neon)
+                )
 
             if f.split("/")[-1] == "POSCAR_no_species":
                 atoms = read_atoms(filename=f)
                 self.assertEqual(len(atoms), 33)
-                # self.assertEqual(len(atoms.selective_dynamics), 33)
+                fixed_atoms = []
+                for con in atoms.constraints:
+                    c = con.todict()
+                    if np.all(c["kwargs"]["mask"]):
+                        fixed_atoms = c["kwargs"]["a"]
+                hidden_list_of_fixed_indices = [0, 29, 30, 31, 32]
+                self.assertTrue(
+                    np.array_equal(fixed_atoms, hidden_list_of_fixed_indices),
+                )
 
             elif f.split("/")[-1] != "POSCAR_spoilt":
                 atoms = read_atoms(filename=f)
@@ -157,9 +162,15 @@ class TestVaspStructure(unittest.TestCase):
                     truth_array[:] = [True, True, True]
                     truth_array[0] = [False, False, False]
                     truth_array[-4:] = [False, False, False]
-                    # self.assertTrue(
-                    #     np.array_equal(atoms.selective_dynamics, truth_array)
-                    # )
+                    fixed_atoms, not_fixed_atoms = [], []
+                    for con in atoms.constraints:
+                        c = con.todict()
+                        if np.all(c["kwargs"]["mask"]):
+                            fixed_atoms = c["kwargs"]["a"]
+                    hidden_list_of_fixed_indices = [0, 29, 30, 31, 32]
+                    self.assertTrue(
+                        np.array_equal(fixed_atoms, hidden_list_of_fixed_indices),
+                    )
 
     def test_write_poscar(self):
         write_poscar(
@@ -171,19 +182,24 @@ class TestVaspStructure(unittest.TestCase):
             self.structure.get_chemical_formula(), test_atoms.get_chemical_formula()
         )
         struct = self.structure.copy()
-        # struct.add_tag(selective_dynamics=[True, True, True])
+        struct.constraints = [
+            FixCartesian(a=list(range(len(struct))), mask=[False, False, False])
+        ]
         write_poscar(
             structure=struct, filename=posixpath.join(self.file_location, "POSCAR_test")
         )
         test_atoms = read_atoms(posixpath.join(self.file_location, "POSCAR_test"))
-        truth_array = np.empty_like(struct.positions, dtype=bool)
-        truth_array[:] = [True, True, True]
-        # self.assertTrue(
-        #     np.array_equal(test_atoms.selective_dynamics, truth_array)
-        # )
+        fixed_atoms = []
+        for con in test_atoms.constraints:
+            c = con.todict()
+            if np.all(c["kwargs"]["mask"]):
+                fixed_atoms = c["kwargs"]["a"]
+        self.assertEqual(len(fixed_atoms), 0)
         os.remove(posixpath.join(self.file_location, "POSCAR_test"))
         struct = self.structure.copy()
-        # struct.add_tag(selective_dynamics=[True, True, True])
+        struct.constraints = [
+            FixCartesian(a=list(range(len(struct))), mask=[False, False, False])
+        ]
         write_poscar(
             structure=struct,
             filename=posixpath.join(self.file_location, "POSCAR_test"),

@@ -5,6 +5,7 @@
 import os
 from collections import OrderedDict
 from ase.atoms import Atoms
+from ase.constraints import FixCartesian
 import numpy as np
 import warnings
 
@@ -125,7 +126,16 @@ def write_poscar(structure, filename="POSCAR", write_species=True, cartesian=Tru
         num_str = [str(val) for val in atom_numbers.values()]
         f.write(" ".join(num_str))
         f.write(endline)
-        if "selective_dynamics" in structure.get_tags():
+        if len(structure.constraints) > 0:
+            selective_dynamics = np.array([[True, True, True]] * len(structure))
+            for con in structure.constraints:
+                c = con.todict()
+                if c["name"] != "FixCartesian":
+                    raise ValueError(
+                        "Currently only FixCartesian is supported in write_poscar()."
+                    )
+                for ind in c["kwargs"]["a"]:
+                    selective_dynamics[ind] = np.invert(c["kwargs"]["mask"])
             selec_dyn = True
             cartesian = False
             f.write("Selective dynamics" + endline)
@@ -139,7 +149,7 @@ def write_poscar(structure, filename="POSCAR", write_species=True, cartesian=Tru
                 else:
                     sorted_coords.append(structure.get_scaled_positions()[i])
                 if selec_dyn:
-                    selec_dyn_lst.append(structure.selective_dynamics[i])
+                    selec_dyn_lst.append(selective_dynamics[i])
         if cartesian:
             f.write("Cartesian" + endline)
         else:
@@ -242,17 +252,54 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
     except ValueError:
         atoms = _dict_to_atoms(atoms_dict, read_from_first_line=True)
     if atoms_dict["selective_dynamics"]:
-        selective_dynamics = np.array(selective_dynamics)
-        unique_sel_dyn, inverse, counts = np.unique(
-            selective_dynamics, axis=0, return_counts=True, return_inverse=True
-        )
-        count_index = np.argmax(counts)
-        # atoms.add_tag(selective_dynamics=unique_sel_dyn.tolist()[count_index])
-        # is_not_majority = np.arange(len(unique_sel_dyn), dtype=int) != count_index
-        # for i, val in enumerate(unique_sel_dyn):
-        #     if is_not_majority[i]:
-        #         for key in np.argwhere(inverse == i).flatten():
-        #             atoms.selective_dynamics[int(key)] = val.tolist()
+        constraints_dict = {
+            label: []
+            for label in ["TTT", "TTF", "FTT", "TFT", "TFF", "FFT", "FTF", "FFF"]
+        }
+        for i, val in enumerate(selective_dynamics):
+            if val[0] and val[1] and val[2]:
+                pass
+            elif val[0] and val[1] and not val[2]:
+                constraints_dict["TTF"].append(i)
+            elif not val[0] and val[1] and val[2]:
+                constraints_dict["FTT"].append(i)
+            elif val[0] and not val[1] and val[2]:
+                constraints_dict["TFT"].append(i)
+            elif val[0] and not val[1] and not val[2]:
+                constraints_dict["TFF"].append(i)
+            elif not val[0] and val[1] and not val[2]:
+                constraints_dict["FTF"].append(i)
+            elif not val[0] and not val[1] and val[2]:
+                constraints_dict["FFT"].append(i)
+            elif not val[0] and not val[1] and not val[2]:
+                constraints_dict["FFF"].append(i)
+            else:
+                raise ValueError("Selective Dynamics Error: " + str(val))
+
+        constraints_lst = []
+        for k, v in constraints_dict.items():
+            if len(v) > 0:
+                if k == "TTF":
+                    constraints_lst.append(FixCartesian(a=v, mask=(False, False, True)))
+                elif k == "FTT":
+                    constraints_lst.append(FixCartesian(a=v, mask=(True, False, False)))
+                elif k == "TFT":
+                    constraints_lst.append(FixCartesian(a=v, mask=(False, True, False)))
+                elif k == "TFF":
+                    constraints_lst.append(FixCartesian(a=v, mask=(False, True, True)))
+                elif k == "FTF":
+                    constraints_lst.append(FixCartesian(a=v, mask=(True, False, True)))
+                elif k == "FFT":
+                    constraints_lst.append(FixCartesian(a=v, mask=(True, True, False)))
+                elif k == "FFF":
+                    constraints_lst.append(FixCartesian(a=v, mask=(True, True, True)))
+                else:
+                    raise ValueError(
+                        "Selective Dynamics Error: " + str(k) + ": " + str(v)
+                    )
+
+        atoms.set_constraint(constraints_lst)
+
     if read_velocities:
         velocity_index = position_index + n_atoms + 1
         for i in range(velocity_index, velocity_index + n_atoms):
