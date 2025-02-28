@@ -647,7 +647,8 @@ class Vasprun(object):
         """
         # try:
         el_list = [
-            re.split('[^a-zA-Z]', el)[0] for el in self.vasprun_dict["atominfo"]["species_list"]
+            re.split("[^a-zA-Z]", el)[0]
+            for el in self.vasprun_dict["atominfo"]["species_list"]
         ]
         cell = self.vasprun_dict["init_structure"]["cell"]
         positions = self.vasprun_dict["init_structure"]["positions"]
