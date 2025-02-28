@@ -126,7 +126,14 @@ def write_poscar(structure, filename="POSCAR", write_species=True, cartesian=Tru
         num_str = [str(val) for val in atom_numbers.values()]
         f.write(" ".join(num_str))
         f.write(endline)
-        if "selective_dynamics" in structure.get_tags():
+        if len(structure.constraints) > 0:
+            selective_dynamics = np.array([[True, True, True]] * len(structure))
+            for con in structure.constraints:
+                c = con.todict()
+                if c["name"] != "FixCartesian":
+                    raise ValueError("Currently only FixCartesian is supported in write_poscar().")
+                for ind in c["kwargs"]["a"]:
+                    selective_dynamics[ind] = np.invert(c["kwargs"]["mask"])
             selec_dyn = True
             cartesian = False
             f.write("Selective dynamics" + endline)
@@ -140,7 +147,7 @@ def write_poscar(structure, filename="POSCAR", write_species=True, cartesian=Tru
                 else:
                     sorted_coords.append(structure.get_scaled_positions()[i])
                 if selec_dyn:
-                    selec_dyn_lst.append(structure.selective_dynamics[i])
+                    selec_dyn_lst.append(selective_dynamics[i])
         if cartesian:
             f.write("Cartesian" + endline)
         else:
@@ -249,7 +256,7 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
         }
         for i, val in enumerate(selective_dynamics):
             if val[0] and val[1] and val[2]:
-                constraints_dict["TTT"].append(i)
+                pass
             elif val[0] and val[1] and not val[2]:
                 constraints_dict["TTF"].append(i)
             elif not val[0] and val[1] and val[2]:
@@ -270,11 +277,7 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
         constraints_lst = []
         for k, v in constraints_dict.items():
             if len(v) > 0:
-                if k == "TTT":
-                    constraints_lst.append(
-                        FixCartesian(a=v, mask=(False, False, False))
-                    )
-                elif k == "TTF":
+                if k == "TTF":
                     constraints_lst.append(FixCartesian(a=v, mask=(False, False, True)))
                 elif k == "FTT":
                     constraints_lst.append(FixCartesian(a=v, mask=(True, False, False)))

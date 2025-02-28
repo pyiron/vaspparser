@@ -8,6 +8,7 @@ import posixpath
 import numpy as np
 
 from ase.atoms import Atoms
+from ase.constraints import FixCartesian
 from pyiron_vasp.vasp.structure import (
     read_atoms,
     write_poscar,
@@ -91,27 +92,14 @@ class TestVaspStructure(unittest.TestCase):
                     c = con.todict()
                     if np.all(c["kwargs"]["mask"]):
                         fixed_atoms = c["kwargs"]["a"]
-                    elif np.all([not el for el in c["kwargs"]["mask"]]):
-                        not_fixed_atoms = c["kwargs"]["a"]
-                self.assertEqual(len(atoms), len(fixed_atoms) + len(not_fixed_atoms))
                 self.assertEqual(len(atoms.symbols.indices()["Mg"]), 10)
                 neon_indices = atoms.symbols.indices()["Ne"]
-                hydrogen_indices = atoms.symbols.indices()["H"]
-                oxygen_indices = atoms.symbols.indices()["O"]
                 magnesium_indices = atoms.symbols.indices()["Mg"]
                 truth_array = np.empty_like(atoms.positions[neon_indices], dtype=bool)
                 truth_array[:, :] = True
                 self.assertTrue(
                     np.array_equal(
                         fixed_atoms, magnesium_indices.tolist() + neon_indices.tolist()
-                    ),
-                )
-                truth_array = np.empty_like(atoms.positions[oxygen_indices], dtype=bool)
-                truth_array[:, :] = True
-                self.assertTrue(
-                    np.array_equal(
-                        not_fixed_atoms,
-                        hydrogen_indices.tolist() + oxygen_indices.tolist(),
                     ),
                 )
                 velocities_neon = np.zeros_like(np.array(velocities)[neon_indices])
@@ -122,26 +110,14 @@ class TestVaspStructure(unittest.TestCase):
             if f.split("/")[-1] == "POSCAR_no_species":
                 atoms = read_atoms(filename=f)
                 self.assertEqual(len(atoms), 33)
-                fixed_atoms, not_fixed_atoms = [], []
+                fixed_atoms = []
                 for con in atoms.constraints:
                     c = con.todict()
                     if np.all(c["kwargs"]["mask"]):
                         fixed_atoms = c["kwargs"]["a"]
-                    elif np.all([not el for el in c["kwargs"]["mask"]]):
-                        not_fixed_atoms = c["kwargs"]["a"]
                 hidden_list_of_fixed_indices = [0, 29, 30, 31, 32]
                 self.assertTrue(
                     np.array_equal(fixed_atoms, hidden_list_of_fixed_indices),
-                )
-                self.assertTrue(
-                    np.array_equal(
-                        not_fixed_atoms,
-                        [
-                            i
-                            for i in range(len(atoms))
-                            if i not in hidden_list_of_fixed_indices
-                        ],
-                    ),
                 )
 
             elif f.split("/")[-1] != "POSCAR_spoilt":
@@ -191,21 +167,9 @@ class TestVaspStructure(unittest.TestCase):
                         c = con.todict()
                         if np.all(c["kwargs"]["mask"]):
                             fixed_atoms = c["kwargs"]["a"]
-                        elif np.all([not el for el in c["kwargs"]["mask"]]):
-                            not_fixed_atoms = c["kwargs"]["a"]
                     hidden_list_of_fixed_indices = [0, 29, 30, 31, 32]
                     self.assertTrue(
                         np.array_equal(fixed_atoms, hidden_list_of_fixed_indices),
-                    )
-                    self.assertTrue(
-                        np.array_equal(
-                            not_fixed_atoms,
-                            [
-                                i
-                                for i in range(len(atoms))
-                                if i not in hidden_list_of_fixed_indices
-                            ],
-                        ),
                     )
 
     def test_write_poscar(self):
@@ -218,19 +182,22 @@ class TestVaspStructure(unittest.TestCase):
             self.structure.get_chemical_formula(), test_atoms.get_chemical_formula()
         )
         struct = self.structure.copy()
-        # struct.add_tag(selective_dynamics=[True, True, True])
+        struct.constraints = [FixCartesian(a=list(range(len(struct))), mask=[False, False, False])]
         write_poscar(
             structure=struct, filename=posixpath.join(self.file_location, "POSCAR_test")
         )
         test_atoms = read_atoms(posixpath.join(self.file_location, "POSCAR_test"))
-        truth_array = np.empty_like(struct.positions, dtype=bool)
-        truth_array[:] = [True, True, True]
-        # self.assertTrue(
-        #     np.array_equal(test_atoms.selective_dynamics, truth_array)
-        # )
+        fixed_atoms = []
+        for con in test_atoms.constraints:
+            c = con.todict()
+            if np.all(c["kwargs"]["mask"]):
+                fixed_atoms = c["kwargs"]["a"]
+        self.assertEqual(
+            len(fixed_atoms), 0
+        )
         os.remove(posixpath.join(self.file_location, "POSCAR_test"))
         struct = self.structure.copy()
-        # struct.add_tag(selective_dynamics=[True, True, True])
+        struct.constraints = [FixCartesian(a=list(range(len(struct))), mask=[False, False, False])]
         write_poscar(
             structure=struct,
             filename=posixpath.join(self.file_location, "POSCAR_test"),
