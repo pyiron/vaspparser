@@ -5,6 +5,7 @@
 import os
 
 from ase.atoms import Atoms
+from ase.constraints import FixCartesian
 import numpy as np
 from collections import OrderedDict
 from pyiron_vasp.dft.waves.electronic import ElectronicStructure
@@ -653,18 +654,56 @@ class Vasprun(object):
             basis = Atoms(el_list, positions=positions, cell=cell, pbc=True)
         else:
             basis = Atoms(el_list, scaled_positions=positions, cell=cell, pbc=True)
-        # if "selective_dynamics" in self.vasprun_dict["init_structure"].keys():
-        #     basis.add_tag(selective_dynamics=[True, True, True])
-        #     for i, val in enumerate(
-        #         self.vasprun_dict["init_structure"]["selective_dynamics"]
-        #     ):
-        #         basis[i].selective_dynamics = val
+        if "selective_dynamics" in self.vasprun_dict["init_structure"].keys():
+            constraints_dict = {
+                label: [] for label in ["TTT", "TTF", "FTT", "TFT", "TFF", "FFT", "FTF", "FFF"]
+            }
+            for i, val in enumerate(
+                self.vasprun_dict["init_structure"]["selective_dynamics"]
+            ):
+                if val[0] and val[1] and val[2]:
+                    constraints_dict["TTT"].append(i)
+                elif val[0] and val[1] and not val[2]:
+                    constraints_dict["TTF"].append(i)
+                elif not val[0] and val[1] and val[2]:
+                    constraints_dict["FTT"].append(i)
+                elif val[0] and not val[1] and val[2]:
+                    constraints_dict["TFT"].append(i)
+                elif val[0] and not val[1] and not val[2]:
+                    constraints_dict["TFF"].append(i)
+                elif not val[0] and val[1] and not val[2]:
+                    constraints_dict["FTF"].append(i)
+                elif not val[0] and not val[1] and val[2]:
+                    constraints_dict["FFT"].append(i)
+                elif not val[0] and not val[1] and not val[2]:
+                    constraints_dict["FFF"].append(i)
+                else:
+                    raise ValueError("Selective Dynamics Error: " + str(val))
+
+            constraints_lst = []
+            for k, v in constraints_dict.items():
+                if len(v) > 0:
+                    if k == "TTT":
+                        constraints_lst.append(FixCartesian(a=v, mask=(False, False, False)))
+                    elif k == "TTF":
+                        constraints_lst.append(FixCartesian(a=v, mask=(False, False, True)))
+                    elif k == "FTT":
+                        constraints_lst.append(FixCartesian(a=v, mask=(True, False, False)))
+                    elif k == "TFT":
+                        constraints_lst.append(FixCartesian(a=v, mask=(False, True, False)))
+                    elif k == "TFF":
+                        constraints_lst.append(FixCartesian(a=v, mask=(False, True, True)))
+                    elif k == "FTF":
+                        constraints_lst.append(FixCartesian(a=v, mask=(True, False, True)))
+                    elif k == "FFT":
+                        constraints_lst.append(FixCartesian(a=v, mask=(True, True, False)))
+                    elif k == "FFF":
+                        constraints_lst.append(FixCartesian(a=v, mask=(True, True, True)))
+                    else:
+                        raise ValueError("Selective Dynamics Error: " + str(k) + ": " + str(v))
+
+            basis.set_constraint(constraints_lst)
         return basis
-        # except KeyError:
-        #     warnings.warn(
-        #         "The initial structure could not be extracted from vasprun properly"
-        #     )
-        #     return
 
     def get_final_structure(self):
         """
