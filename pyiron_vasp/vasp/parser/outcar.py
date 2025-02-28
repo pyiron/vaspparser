@@ -137,32 +137,8 @@ class Outcar(object):
         except IndexError:
             self.parse_dict["pressures"] = np.zeros(len(steps))
 
-    def to_hdf(self, hdf, group_name="outcar"):
-        """
-        Store output in an HDF5 file
-
-        Args:
-            hdf (pyiron_base.generic.hdfio.FileHDFio): HDF5 group or file
-            group_name (str): Name of the HDF5 group
-        """
-        with hdf.open(group_name) as hdf5_output:
-            for key in self.parse_dict.keys():
-                hdf5_output[key] = self.parse_dict[key]
-
-    def to_hdf_minimal(self, hdf, group_name="outcar"):
-        """
-        Store minimal output in an HDF5 file (output unique to OUTCAR)
-
-        Args:
-            hdf (pyiron_base.generic.hdfio.FileHDFio): HDF5 group or file
-            group_name (str): Name of the HDF5 group
-        """
-        with hdf.open(group_name) as hdf5_output:
-            for k, v in self.to_dict_minimal().items():
-                hdf5_output[k] = v
-
     def to_dict_minimal(self):
-        hdf5_output = {}
+        output_dict = {}
         unique_quantities = [
             "kin_energy_error",
             "broyden_mixing",
@@ -175,20 +151,8 @@ class Outcar(object):
         ]
         for key in self.parse_dict.keys():
             if key in unique_quantities:
-                hdf5_output[key] = self.parse_dict[key]
-        return hdf5_output
-
-    def from_hdf(self, hdf, group_name="outcar"):
-        """
-        Load output from an HDF5 file
-
-        Args:
-            hdf (pyiron_base.generic.hdfio.FileHDFio): HDF5 group or file
-            group_name (str): Name of the HDF5 group
-        """
-        with hdf.open(group_name) as hdf5_output:
-            for key in hdf5_output.list_nodes():
-                self.parse_dict[key] = hdf5_output[key]
+                output_dict[key] = self.parse_dict[key]
+        return output_dict
 
     def get_vasp_version(self, filename="OUTCAR", lines=None):
         return lines[0].lstrip().split(sep=" ")[0]
