@@ -244,7 +244,8 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
         atoms = _dict_to_atoms(atoms_dict, read_from_first_line=True)
     if atoms_dict["selective_dynamics"]:
         constraints_dict = {
-            label: [] for label in ["TTT", "TTF", "FTT", "TFT", "TFF", "FFT", "FTF", "FFF"]
+            label: []
+            for label in ["TTT", "TTF", "FTT", "TFT", "TFF", "FFT", "FTF", "FFF"]
         }
         for i, val in enumerate(selective_dynamics):
             if val[0] and val[1] and val[2]:
@@ -270,7 +271,9 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
         for k, v in constraints_dict.items():
             if len(v) > 0:
                 if k == "TTT":
-                    constraints_lst.append(FixCartesian(a=v, mask=(False, False, False)))
+                    constraints_lst.append(
+                        FixCartesian(a=v, mask=(False, False, False))
+                    )
                 elif k == "TTF":
                     constraints_lst.append(FixCartesian(a=v, mask=(False, False, True)))
                 elif k == "FTT":
@@ -286,7 +289,9 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
                 elif k == "FFF":
                     constraints_lst.append(FixCartesian(a=v, mask=(True, True, True)))
                 else:
-                    raise ValueError("Selective Dynamics Error: " + str(k) + ": " + str(v))
+                    raise ValueError(
+                        "Selective Dynamics Error: " + str(k) + ": " + str(v)
+                    )
 
         atoms.set_constraint(constraints_lst)
 
