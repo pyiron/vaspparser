@@ -89,10 +89,10 @@ class TestVaspStructure(unittest.TestCase):
                 fixed_atoms, not_fixed_atoms = [], []
                 for con in atoms.constraints:
                     c = con.todict()
-                    if np.all(c['kwargs']['mask']):
-                        fixed_atoms = c['kwargs']['a']
-                    elif np.all([not el for el in c['kwargs']['mask']]):
-                        not_fixed_atoms = c['kwargs']['a']
+                    if np.all(c["kwargs"]["mask"]):
+                        fixed_atoms = c["kwargs"]["a"]
+                    elif np.all([not el for el in c["kwargs"]["mask"]]):
+                        not_fixed_atoms = c["kwargs"]["a"]
                 self.assertEqual(len(atoms), len(fixed_atoms) + len(not_fixed_atoms))
                 self.assertEqual(len(atoms.symbols.indices()["Mg"]), 10)
                 neon_indices = atoms.symbols.indices()["Ne"]
@@ -102,12 +102,17 @@ class TestVaspStructure(unittest.TestCase):
                 truth_array = np.empty_like(atoms.positions[neon_indices], dtype=bool)
                 truth_array[:, :] = True
                 self.assertTrue(
-                    np.array_equal(fixed_atoms, magnesium_indices.tolist() + neon_indices.tolist()),
+                    np.array_equal(
+                        fixed_atoms, magnesium_indices.tolist() + neon_indices.tolist()
+                    ),
                 )
                 truth_array = np.empty_like(atoms.positions[oxygen_indices], dtype=bool)
                 truth_array[:, :] = True
                 self.assertTrue(
-                    np.array_equal(not_fixed_atoms, hydrogen_indices.tolist() + oxygen_indices.tolist()),
+                    np.array_equal(
+                        not_fixed_atoms,
+                        hydrogen_indices.tolist() + oxygen_indices.tolist(),
+                    ),
                 )
                 velocities_neon = np.zeros_like(np.array(velocities)[neon_indices])
                 self.assertTrue(
@@ -120,10 +125,10 @@ class TestVaspStructure(unittest.TestCase):
                 fixed_atoms, not_fixed_atoms = [], []
                 for con in atoms.constraints:
                     c = con.todict()
-                    if np.all(c['kwargs']['mask']):
-                        fixed_atoms = c['kwargs']['a']
-                    elif np.all([not el for el in c['kwargs']['mask']]):
-                        not_fixed_atoms = c['kwargs']['a']
+                    if np.all(c["kwargs"]["mask"]):
+                        fixed_atoms = c["kwargs"]["a"]
+                    elif np.all([not el for el in c["kwargs"]["mask"]]):
+                        not_fixed_atoms = c["kwargs"]["a"]
                 hidden_list_of_fixed_indices = [0, 29, 30, 31, 32]
                 self.assertTrue(
                     np.array_equal(fixed_atoms, hidden_list_of_fixed_indices),
@@ -131,7 +136,11 @@ class TestVaspStructure(unittest.TestCase):
                 self.assertTrue(
                     np.array_equal(
                         not_fixed_atoms,
-                        [i for i in range(len(atoms)) if i not in hidden_list_of_fixed_indices],
+                        [
+                            i
+                            for i in range(len(atoms))
+                            if i not in hidden_list_of_fixed_indices
+                        ],
                     ),
                 )
 
@@ -180,10 +189,10 @@ class TestVaspStructure(unittest.TestCase):
                     fixed_atoms, not_fixed_atoms = [], []
                     for con in atoms.constraints:
                         c = con.todict()
-                        if np.all(c['kwargs']['mask']):
-                            fixed_atoms = c['kwargs']['a']
-                        elif np.all([not el for el in c['kwargs']['mask']]):
-                            not_fixed_atoms = c['kwargs']['a']
+                        if np.all(c["kwargs"]["mask"]):
+                            fixed_atoms = c["kwargs"]["a"]
+                        elif np.all([not el for el in c["kwargs"]["mask"]]):
+                            not_fixed_atoms = c["kwargs"]["a"]
                     hidden_list_of_fixed_indices = [0, 29, 30, 31, 32]
                     self.assertTrue(
                         np.array_equal(fixed_atoms, hidden_list_of_fixed_indices),
@@ -191,7 +200,11 @@ class TestVaspStructure(unittest.TestCase):
                     self.assertTrue(
                         np.array_equal(
                             not_fixed_atoms,
-                            [i for i in range(len(atoms)) if i not in hidden_list_of_fixed_indices],
+                            [
+                                i
+                                for i in range(len(atoms))
+                                if i not in hidden_list_of_fixed_indices
+                            ],
                         ),
                     )
 
