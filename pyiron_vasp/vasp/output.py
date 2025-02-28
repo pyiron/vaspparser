@@ -415,6 +415,7 @@ def parse_vasp_output(
     read_atoms_funct: callable = read_atoms,
     es_class=ElectronicStructure,
     bader_class=Bader,
+    output_parser_class=Output,
 ) -> dict:
     """
     Parse the VASP output in the working_directory and return it as hierachical dictionary.
@@ -427,7 +428,7 @@ def parse_vasp_output(
     Returns:
         dict: hierarchical output dictionary
     """
-    output_parser = Output()
+    output_parser = output_parser_class()
     if structure is None or len(structure) == 0:
         try:
             structure = get_final_structure_from_file(
