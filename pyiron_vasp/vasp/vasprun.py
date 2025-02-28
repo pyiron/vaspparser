@@ -3,6 +3,7 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import os
+import re
 
 from ase.atoms import Atoms
 from ase.constraints import FixCartesian
@@ -646,7 +647,7 @@ class Vasprun(object):
         """
         # try:
         el_list = [
-            el.split("_")[0] for el in self.vasprun_dict["atominfo"]["species_list"]
+            re.split('[^a-zA-Z]', el)[0] for el in self.vasprun_dict["atominfo"]["species_list"]
         ]
         cell = self.vasprun_dict["init_structure"]["cell"]
         positions = self.vasprun_dict["init_structure"]["positions"]
