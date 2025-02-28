@@ -112,62 +112,74 @@ def write_poscar(structure, filename="POSCAR", write_species=True, cartesian=Tru
         cartesian (bool): True if the positions are written in Cartesian coordinates
 
     """
-    endline = "\n"
     with open(filename, "w") as f:
-        selec_dyn = False
-        f.write("Poscar file generated with pyiron" + endline)
-        f.write("1.0" + endline)
-        for a_i in structure.get_cell():
-            x, y, z = a_i
-            f.write("{0:.15f} {1:.15f} {2:.15f}".format(x, y, z) + endline)
-        atom_numbers = get_number_species_atoms(structure=structure)
-        if write_species:
-            f.write(" ".join(atom_numbers.keys()) + endline)
-        num_str = [str(val) for val in atom_numbers.values()]
-        f.write(" ".join(num_str))
-        f.write(endline)
-        if len(structure.constraints) > 0:
-            selective_dynamics = np.array([[True, True, True]] * len(structure))
-            for con in structure.constraints:
-                c = con.todict()
-                if c["name"] != "FixCartesian":
-                    raise ValueError(
-                        "Currently only FixCartesian is supported in write_poscar()."
-                    )
-                for ind in c["kwargs"]["a"]:
-                    selective_dynamics[ind] = np.invert(c["kwargs"]["mask"])
-            selec_dyn = True
-            cartesian = False
-            f.write("Selective dynamics" + endline)
-        sorted_coords = list()
-        selec_dyn_lst = list()
-        for species in atom_numbers.keys():
-            indices = structure.symbols.indices()[species]
-            for i in indices:
-                if cartesian:
-                    sorted_coords.append(structure.positions[i])
-                else:
-                    sorted_coords.append(structure.get_scaled_positions()[i])
-                if selec_dyn:
-                    selec_dyn_lst.append(selective_dynamics[i])
-        if cartesian:
-            f.write("Cartesian" + endline)
-        else:
-            f.write("Direct" + endline)
-        if selec_dyn:
-            for i, vec in enumerate(sorted_coords):
-                x, y, z = vec
-                sd_string = " ".join(["T" if sd else "F" for sd in selec_dyn_lst[i]])
-                f.write(
-                    "{0:.15f} {1:.15f} {2:.15f}".format(x, y, z)
-                    + " "
-                    + sd_string
-                    + endline
+        f.writelines(
+            "".join(
+                get_poscar_content(
+                    structure=structure,
+                    write_species=write_species,
+                    cartesian=cartesian,
                 )
-        else:
-            for i, vec in enumerate(sorted_coords):
-                x, y, z = vec
-                f.write("{0:.15f} {1:.15f} {2:.15f}".format(x, y, z) + endline)
+            )
+        )
+
+
+def get_poscar_content(structure, write_species=True, cartesian=True):
+    endline = "\n"
+    selec_dyn = False
+    line_lst = [
+        "Poscar file generated with pyiron" + endline,
+        "1.0" + endline,
+    ]
+    for a_i in structure.get_cell():
+        x, y, z = a_i
+        line_lst.append("{0:.15f} {1:.15f} {2:.15f}".format(x, y, z) + endline)
+    atom_numbers = get_number_species_atoms(structure=structure)
+    if write_species:
+        line_lst.append(" ".join(atom_numbers.keys()) + endline)
+    num_str = [str(val) for val in atom_numbers.values()]
+    line_lst.append(" ".join(num_str))
+    line_lst.append(endline)
+    if len(structure.constraints) > 0:
+        selective_dynamics = np.array([[True, True, True]] * len(structure))
+        for con in structure.constraints:
+            c = con.todict()
+            if c["name"] != "FixCartesian":
+                raise ValueError(
+                    "Currently only FixCartesian is supported in write_poscar()."
+                )
+            for ind in c["kwargs"]["a"]:
+                selective_dynamics[ind] = np.invert(c["kwargs"]["mask"])
+        selec_dyn = True
+        cartesian = False
+        line_lst.append("Selective dynamics" + endline)
+    sorted_coords = list()
+    selec_dyn_lst = list()
+    for species in atom_numbers.keys():
+        indices = structure.symbols.indices()[species]
+        for i in indices:
+            if cartesian:
+                sorted_coords.append(structure.positions[i])
+            else:
+                sorted_coords.append(structure.get_scaled_positions()[i])
+            if selec_dyn:
+                selec_dyn_lst.append(selective_dynamics[i])
+    if cartesian:
+        line_lst.append("Cartesian" + endline)
+    else:
+        line_lst.append("Direct" + endline)
+    if selec_dyn:
+        for i, vec in enumerate(sorted_coords):
+            x, y, z = vec
+            sd_string = " ".join(["T" if sd else "F" for sd in selec_dyn_lst[i]])
+            line_lst.append(
+                "{0:.15f} {1:.15f} {2:.15f}".format(x, y, z) + " " + sd_string + endline
+            )
+    else:
+        for i, vec in enumerate(sorted_coords):
+            x, y, z = vec
+            line_lst.append("{0:.15f} {1:.15f} {2:.15f}".format(x, y, z) + endline)
+    return line_lst
 
 
 def atoms_from_string(string, read_velocities=False, species_list=None):
@@ -258,7 +270,7 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
         }
         for i, val in enumerate(selective_dynamics):
             if val[0] and val[1] and val[2]:
-                pass
+                constraints_dict["TTT"].append(i)
             elif val[0] and val[1] and not val[2]:
                 constraints_dict["TTF"].append(i)
             elif not val[0] and val[1] and val[2]:
@@ -279,7 +291,11 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
         constraints_lst = []
         for k, v in constraints_dict.items():
             if len(v) > 0:
-                if k == "TTF":
+                if k == "TTT":
+                    constraints_lst.append(
+                        FixCartesian(a=v, mask=(False, False, False))
+                    )
+                elif k == "TTF":
                     constraints_lst.append(FixCartesian(a=v, mask=(False, False, True)))
                 elif k == "FTT":
                     constraints_lst.append(FixCartesian(a=v, mask=(True, False, False)))
