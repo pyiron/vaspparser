@@ -182,7 +182,9 @@ class TestVaspStructure(unittest.TestCase):
             self.structure.get_chemical_formula(), test_atoms.get_chemical_formula()
         )
         struct = self.structure.copy()
-        struct.constraints = [FixCartesian(a=list(range(len(struct))), mask=[False, False, False])]
+        struct.constraints = [
+            FixCartesian(a=list(range(len(struct))), mask=[False, False, False])
+        ]
         write_poscar(
             structure=struct, filename=posixpath.join(self.file_location, "POSCAR_test")
         )
@@ -192,12 +194,12 @@ class TestVaspStructure(unittest.TestCase):
             c = con.todict()
             if np.all(c["kwargs"]["mask"]):
                 fixed_atoms = c["kwargs"]["a"]
-        self.assertEqual(
-            len(fixed_atoms), 0
-        )
+        self.assertEqual(len(fixed_atoms), 0)
         os.remove(posixpath.join(self.file_location, "POSCAR_test"))
         struct = self.structure.copy()
-        struct.constraints = [FixCartesian(a=list(range(len(struct))), mask=[False, False, False])]
+        struct.constraints = [
+            FixCartesian(a=list(range(len(struct))), mask=[False, False, False])
+        ]
         write_poscar(
             structure=struct,
             filename=posixpath.join(self.file_location, "POSCAR_test"),

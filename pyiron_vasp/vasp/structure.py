@@ -131,7 +131,9 @@ def write_poscar(structure, filename="POSCAR", write_species=True, cartesian=Tru
             for con in structure.constraints:
                 c = con.todict()
                 if c["name"] != "FixCartesian":
-                    raise ValueError("Currently only FixCartesian is supported in write_poscar().")
+                    raise ValueError(
+                        "Currently only FixCartesian is supported in write_poscar()."
+                    )
                 for ind in c["kwargs"]["a"]:
                     selective_dynamics[ind] = np.invert(c["kwargs"]["mask"])
             selec_dyn = True
