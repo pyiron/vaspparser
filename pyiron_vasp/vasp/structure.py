@@ -3,6 +3,7 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import os
+import re
 from collections import OrderedDict
 from ase.atoms import Atoms
 from ase.constraints import FixCartesian
@@ -393,7 +394,7 @@ def _dict_to_atoms(atoms_dict, species_list=None, read_from_first_line=False):
     elements_new = list()
     for ele in elements:
         for e in ele:
-            elements_new.append(e)
+            elements_new.append(re.split("[^a-zA-Z]", e)[0])
     elements = elements_new
     if is_absolute:
         atoms = Atoms(elements, positions=positions, cell=cell, pbc=True)
