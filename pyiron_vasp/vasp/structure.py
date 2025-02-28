@@ -292,7 +292,9 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
         for k, v in constraints_dict.items():
             if len(v) > 0:
                 if k == "TTT":
-                    constraints_lst.append(FixCartesian(a=v, mask=(False, False, False)))
+                    constraints_lst.append(
+                        FixCartesian(a=v, mask=(False, False, False))
+                    )
                 elif k == "TTF":
                     constraints_lst.append(FixCartesian(a=v, mask=(False, False, True)))
                 elif k == "FTT":
