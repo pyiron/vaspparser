@@ -310,34 +310,6 @@ class VolumetricData(object):
         else:
             return np.average(np.average(self._total_data, axis=0), 0)
 
-    def to_hdf(self, hdf, group_name="volumetric_data"):
-        """
-        Writes the data as a group to a HDF5 file
-
-        Args:
-            hdf (pyiron_base.generic.hdfio.ProjectHDFio): The HDF file/path to write the data to
-            group_name (str): The name of the group under which the data must be stored as
-
-        """
-        with hdf.open(group_name) as hdf_vd:
-            hdf_vd["TYPE"] = str(type(self))
-            hdf_vd["total"] = self.total_data
-
-    def from_hdf(self, hdf, group_name="volumetric_data"):
-        """
-        Recreating the VolumetricData instance by reading data from the HDF5 files
-
-        Args:
-            hdf (pyiron_base.generic.hdfio.ProjectHDFio): The HDF file/path to write the data to
-            group_name (str): The name of the group under which the data must be stored as
-
-        Returns:
-            pyiron.atomistics.volumetric.generic.VolumetricData: The VolumetricData instance
-
-        """
-        with hdf.open(group_name) as hdf_vd:
-            self._total_data = hdf_vd["total"]
-
     def write_cube_file(self, filename="cube_file.cube", cell_scaling=1.0):
         """
         Write the volumetric data into the CUBE file format

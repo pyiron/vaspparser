@@ -344,28 +344,28 @@ class Output:
         self.generic_output.bands = self.electronic_structure
 
     def to_dict(self):
-        hdf5_output = {
+        output_dict = {
             "description": self.description,
             "generic": self.generic_output.to_dict(),
         }
 
         if self._structure is not None:
-            hdf5_output["structure"] = self.structure.to_dict()
+            output_dict["structure"] = self.structure.to_dict()
 
         if self.electrostatic_potential.total_data is not None:
-            hdf5_output["electrostatic_potential"] = (
+            output_dict["electrostatic_potential"] = (
                 self.electrostatic_potential.to_dict()
             )
 
         if self.charge_density.total_data is not None:
-            hdf5_output["charge_density"] = self.charge_density.to_dict()
+            output_dict["charge_density"] = self.charge_density.to_dict()
 
         if len(self.electronic_structure.kpoint_list) > 0:
-            hdf5_output["electronic_structure"] = self.electronic_structure.to_dict()
+            output_dict["electronic_structure"] = self.electronic_structure.to_dict()
 
         if len(self.outcar.parse_dict.keys()) > 0:
-            hdf5_output["outcar"] = self.outcar.to_dict_minimal()
-        return hdf5_output
+            output_dict["outcar"] = self.outcar.to_dict_minimal()
+        return output_dict
 
 
 class GenericOutput:
@@ -393,15 +393,15 @@ class GenericOutput:
         self._bands = val
 
     def to_dict(self):
-        hdf_go, hdf_dft = {}, {}
+        go_dict, dft_dict = {}, {}
         for key, val in self.log_dict.items():
-            hdf_go[key] = val
+            go_dict[key] = val
         for key, val in self.dft_log_dict.items():
-            hdf_dft[key] = val
-        hdf_go["dft"] = hdf_dft
+            dft_dict[key] = val
+        go_dict["dft"] = dft_dict
         if self.bands.eigenvalue_matrix is not None:
-            hdf_go["dft"]["bands"] = self.bands.to_dict()
-        return hdf_go
+            go_dict["dft"]["bands"] = self.bands.to_dict()
+        return go_dict
 
 
 class VaspCollectError(ValueError):
