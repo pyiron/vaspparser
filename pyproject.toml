@@ -26,7 +26,6 @@ classifiers = [
 dependencies = [
     "ase==3.24.0",
     "defusedxml==0.7.1",
-    "matplotlib==3.10.0",
     "numpy==2.2.3",
     "pandas==2.2.3",
     "scipy==1.15.2",
@@ -37,6 +36,11 @@ dynamic = ["version"]
 Homepage = "https://pyiron.org"
 Documentation = "https://pyiron_vasp.readthedocs.io"
 Repository = "https://github.com/pyiron/pyiron_vasp"
+
+[project.optional-dependencies]
+plot = [
+    "matplotlib==3.10.1"
+]
 
 [tool.setuptools.packages.find]
 include = ["pyiron_vasp*"]

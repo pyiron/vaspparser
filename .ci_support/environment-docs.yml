@@ -7,7 +7,7 @@ dependencies:
 - myst-parser
 - ase =3.24.0
 - defusedxml =0.7.1
-- matplotlib-base =3.10.0
+- matplotlib-base =3.10.1
 - numpy =2.2.3
 - pandas =2.2.3
 - scipy =1.15.2
