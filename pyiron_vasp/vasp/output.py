@@ -520,7 +520,7 @@ def get_final_structure_from_file(
         try:
             output_structure = read_atoms_funct(
                 filename=filename,
-                species_list=input_structure.get_parent_symbols(),
+                species_list=input_structure.get_chemical_symbols(),
             )
             input_structure.cell = output_structure.cell.copy()
             input_structure.positions[sorted_indices] = output_structure.positions
