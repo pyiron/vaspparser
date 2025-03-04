@@ -350,7 +350,7 @@ class Output:
         }
 
         if self._structure is not None:
-            if isinstance(self._structure, Atoms):
+            if type(input_structure) == Atoms:
                 output_dict["structure"] = self.structure.todict()
             else:
                 output_dict["structure"] = self.structure.to_dict()
@@ -520,7 +520,7 @@ def get_final_structure_from_file(
             raise IOError("Unable to read output structure")
     else:
         input_structure = structure.copy()
-        if isinstance(input_structure, Atoms):
+        if type(input_structure) == Atoms:
             species_list = input_structure.get_chemical_symbols()
         else:
             species_list = input_structure.get_parent_symbols()
