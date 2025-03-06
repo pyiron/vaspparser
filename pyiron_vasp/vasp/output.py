@@ -349,11 +349,10 @@ class Output:
             "generic": self.generic_output.to_dict(),
         }
 
-        if self._structure is not None:
-            if type(input_structure) == Atoms:
-                output_dict["structure"] = self.structure.todict()
-            else:
-                output_dict["structure"] = self.structure.to_dict()
+        if self.structure is not None and type(self.structure) == Atoms:
+            output_dict["structure"] = self.structure.todict()
+        elif self.structure is not None:
+            output_dict["structure"] = self.structure.to_dict()
 
         if self.electrostatic_potential.total_data is not None:
             output_dict["electrostatic_potential"] = (
