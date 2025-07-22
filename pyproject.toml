@@ -40,7 +40,7 @@ Repository = "https://github.com/pyiron/pyiron_vasp"
 
 [project.optional-dependencies]
 plot = [
-    "matplotlib==3.10.1"
+    "matplotlib==3.10.3"
 ]
 
 [tool.setuptools.packages.find]
