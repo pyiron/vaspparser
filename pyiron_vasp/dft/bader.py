@@ -123,7 +123,7 @@ def parse_charge_vol_file(structure, filename="ACF.dat"):
         tuple: charges and volumes
 
     """
-    with open(filename, errors='ignore') as f:
+    with open(filename, errors="ignore") as f:
         lines = f.readlines()
         charges = np.genfromtxt(lines[2:], max_rows=len(structure))[:, 4]
         volumes = np.genfromtxt(lines[2:], max_rows=len(structure))[:, 6]

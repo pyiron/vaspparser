@@ -32,7 +32,7 @@ class Report(object):
         Args:
             filename (str): Path to the file that needs to be parsed
         """
-        with open(filename, "r", errors='ignore') as f:
+        with open(filename, "r", errors="ignore") as f:
             lines = f.readlines()
         rel_lines = [
             lines[i + 2] for i, line in enumerate(lines) if "Blue_moon" in line

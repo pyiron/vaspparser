@@ -70,7 +70,7 @@ def get_species_list_from_potcar(filename="POTCAR"):
     """
     trigger = "VRHFIN ="
     species_list = list()
-    with open(filename, errors='ignore') as potcar_file:
+    with open(filename, errors="ignore") as potcar_file:
         lines = potcar_file.readlines()
         for line in lines:
             line = line.strip()
@@ -436,7 +436,7 @@ def manip_contcar(filename, new_filename, add_pos):
     actual_struct = read_atoms(filename)
     n = 0
     direct = True
-    with open(filename, "r", errors='ignore') as f:
+    with open(filename, "r", errors="ignore") as f:
         lines = f.readlines()
         for line in lines:
             if "Direct" in line or "Cartesian" in line:

@@ -31,7 +31,7 @@ class Oszicar(object):
         self.parse_dict = dict()
 
     def from_file(self, filename="OSZICAR"):
-        with open(filename, "r", errors='ignore') as f:
+        with open(filename, "r", errors="ignore") as f:
             lines = f.readlines()
         self.parse_dict["energy_pot"] = self.get_energy_pot(lines)
 
