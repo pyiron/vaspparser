@@ -326,22 +326,40 @@ class Outcar(object):
         weight_lst = []
         planewaves_lst = []
         trigger_number_str = "Subroutine IBZKPT returns following result:"
+        trigger_number_str_alt = "k-points in reciprocal lattice and weights:"
+        trigger_number_str_total = (
+            "position of ions in fractional coordinates (direct lattice)"
+        )
         trigger_plane_waves_str = "k-point  1 :"
+        trigger_plane_waves_alt_str = "k-point     1 :"
         trigger_number = 0
+        trigger_number_alt = 0
+        trigger_number_alt_total = 0
         trigger_plane_waves = 0
         lines = _get_lines_from_file(filename=filename, lines=lines)
         for i, line in enumerate(lines):
             line = line.strip()
             if trigger_number_str in line:
                 trigger_number = int(i)
+            elif trigger_number_str_alt in line:
+                trigger_number_alt = int(i) + 1
+            elif trigger_number_alt != 0 and trigger_number_str_total in line:
+                trigger_number_alt_total = int(i) - 1
             elif planewaves:
-                if trigger_plane_waves_str in line:
+                if (
+                    trigger_plane_waves_str in line
+                    or trigger_plane_waves_alt_str in line
+                ) and "plane waves: " in line:
                     trigger_plane_waves = int(i)
-        number_irr_kpoints = int(lines[trigger_number + 3].split()[1])
-        if reciprocal:
-            trigger_start = trigger_number + 7
+        if trigger_number != 0:
+            number_irr_kpoints = int(lines[trigger_number + 3].split()[1])
+            if reciprocal:
+                trigger_start = trigger_number + 7
+            else:
+                trigger_start = trigger_number + 10 + number_irr_kpoints
         else:
-            trigger_start = trigger_number + 10 + number_irr_kpoints
+            trigger_start = trigger_number_alt
+            number_irr_kpoints = trigger_number_alt_total - trigger_number_alt
         for line in lines[trigger_start : trigger_start + number_irr_kpoints]:
             line = line.strip()
             line = _clean_line(line)
