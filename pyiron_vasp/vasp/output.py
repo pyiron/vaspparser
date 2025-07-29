@@ -349,7 +349,9 @@ class Output:
             "generic": self.generic_output.to_dict(),
         }
 
-        if self._structure is not None:
+        if self.structure is not None and type(self.structure) == Atoms:
+            output_dict["structure"] = self.structure.todict()
+        elif self.structure is not None:
             output_dict["structure"] = self.structure.to_dict()
 
         if self.electrostatic_potential.total_data is not None:
@@ -517,10 +519,14 @@ def get_final_structure_from_file(
             raise IOError("Unable to read output structure")
     else:
         input_structure = structure.copy()
+        if type(input_structure) == Atoms:
+            species_list = input_structure.get_chemical_symbols()
+        else:
+            species_list = input_structure.get_parent_symbols()
         try:
             output_structure = read_atoms_funct(
                 filename=filename,
-                species_list=input_structure.get_parent_symbols(),
+                species_list=species_list,
             )
             input_structure.cell = output_structure.cell.copy()
             input_structure.positions[sorted_indices] = output_structure.positions
