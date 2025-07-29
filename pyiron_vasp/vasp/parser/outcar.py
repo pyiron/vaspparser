@@ -1242,6 +1242,6 @@ def _get_lines_from_file(filename, lines=None):
         list: list of lines
     """
     if lines is None:
-        with open(filename, "r", errors='ignore') as f:
+        with open(filename, "r") as f:
             lines = f.readlines()
     return lines
