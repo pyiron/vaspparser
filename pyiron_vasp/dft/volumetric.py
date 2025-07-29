@@ -357,7 +357,7 @@ class VolumetricData(object):
             filename (str): Filename to parse
 
         """
-        with open(filename, "r") as f:
+        with open(filename, "r", errors='ignore') as f:
             lines = f.readlines()
             n_atoms = int(lines[2].strip().split()[0])
             cell_data = np.genfromtxt(lines[3:6])

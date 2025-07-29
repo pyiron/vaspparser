@@ -51,7 +51,7 @@ class Outcar(object):
             filename (str): Filename of the OUTCAR file to parse
 
         """
-        with open(filename, "r") as f:
+        with open(filename, "r", errors='ignore') as f:
             lines = f.readlines()
         energies = self.get_total_energies(filename=filename, lines=lines)
         energies_int = self.get_energy_without_entropy(filename=filename, lines=lines)
@@ -1229,6 +1229,6 @@ def _get_lines_from_file(filename, lines=None):
         list: list of lines
     """
     if lines is None:
-        with open(filename, "r") as f:
+        with open(filename, "r", errors='ignore') as f:
             lines = f.readlines()
     return lines

@@ -30,7 +30,7 @@ class Procar(object):
         self.dos_dict = OrderedDict()
 
     def from_file(self, filename):
-        with open(filename, "r") as f:
+        with open(filename, "r", errors='ignore') as f:
             es_obj = ElectronicStructure()
             lines = f.readlines()
             details_trigger = "# of k-points:"
