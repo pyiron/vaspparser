@@ -1,6 +1,7 @@
 from __future__ import print_function
 import os
 import posixpath
+from typing import Optional, Callable, Any, Type
 import numpy as np
 
 from ase.atoms import Atoms
@@ -412,12 +413,12 @@ class VaspCollectError(ValueError):
 
 def parse_vasp_output(
     working_directory: str,
-    structure: Atoms = None,
-    sorted_indices: list = None,
-    read_atoms_funct: callable = read_atoms,
-    es_class=ElectronicStructure,
-    bader_class=Bader,
-    output_parser_class=Output,
+    structure: Optional[Atoms] = None,
+    sorted_indices: Optional[np.ndarray] = None,
+    read_atoms_funct: Callable = read_atoms,
+    es_class: Type[ElectronicStructure] = ElectronicStructure,
+    bader_class: Type[Bader] = Bader,
+    output_parser_class: Type[Output] = Output,
 ) -> dict:
     """
     Parse the VASP output in the working_directory and return it as hierachical dictionary.

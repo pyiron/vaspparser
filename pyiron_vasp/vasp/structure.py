@@ -5,6 +5,7 @@
 import os
 import re
 from collections import OrderedDict
+from typing import Optional, Union, List, OrderedDict as OrderedDictType, Any, Dict
 from ase.atoms import Atoms
 from ase.constraints import FixCartesian
 import numpy as np
@@ -23,11 +24,11 @@ __date__ = "Sep 1, 2017"
 
 
 def read_atoms(
-    filename="CONTCAR",
-    return_velocities=False,
-    species_list=None,
-    species_from_potcar=False,
-):
+    filename: str = "CONTCAR",
+    return_velocities: bool = False,
+    species_list: Optional[Union[list, np.ndarray]] = None,
+    species_from_potcar: bool = False,
+) -> Union[Atoms, tuple[Atoms, list]]:
     """
     Routine to read structural static from a POSCAR type file
 
@@ -57,7 +58,7 @@ def read_atoms(
     )
 
 
-def get_species_list_from_potcar(filename="POTCAR"):
+def get_species_list_from_potcar(filename: str = "POTCAR") -> List[str]:
     """
     Generates the species list from a POTCAR type file
 
@@ -81,7 +82,7 @@ def get_species_list_from_potcar(filename="POTCAR"):
     return species_list
 
 
-def get_number_species_atoms(structure):
+def get_number_species_atoms(structure: Atoms) -> OrderedDictType[str, int]:
     """
     Returns a dictionary with the species in the structure and the corresponding count in the structure
 
@@ -102,7 +103,12 @@ def get_number_species_atoms(structure):
     return count
 
 
-def write_poscar(structure, filename="POSCAR", write_species=True, cartesian=True):
+def write_poscar(
+    structure: Atoms,
+    filename: str = "POSCAR",
+    write_species: bool = True,
+    cartesian: bool = True,
+) -> None:
     """
     Writes a POSCAR type file from a structure object
 
@@ -125,7 +131,9 @@ def write_poscar(structure, filename="POSCAR", write_species=True, cartesian=Tru
         )
 
 
-def get_poscar_content(structure, write_species=True, cartesian=True):
+def get_poscar_content(
+    structure: Atoms, write_species: bool = True, cartesian: bool = True
+) -> List[str]:
     endline = "\n"
     selec_dyn = False
     line_lst = [
@@ -183,7 +191,11 @@ def get_poscar_content(structure, write_species=True, cartesian=True):
     return line_lst
 
 
-def atoms_from_string(string, read_velocities=False, species_list=None):
+def atoms_from_string(
+    string: List[str],
+    read_velocities: bool = False,
+    species_list: Optional[Union[list, np.ndarray]] = None,
+) -> Union[Atoms, tuple[Atoms, list]]:
     """
     Routine to convert a string list read from a input/output structure file and convert into Atoms instance
 
@@ -198,7 +210,7 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
     """
     string = [s.strip() for s in string]
     string_lower = [s.lower() for s in string]
-    atoms_dict = dict()
+    atoms_dict: Dict[str, Any] = dict()
     atoms_dict["first_line"] = string[0]
     # del string[0]
     atoms_dict["selective_dynamics"] = False
@@ -221,7 +233,7 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
     if "selective dynamics" in string_lower:
         atoms_dict["selective_dynamics"] = True
     no_of_species = len(string[5].split())
-    species_dict = OrderedDict()
+    species_dict: OrderedDictType[str, Dict[str, Any]] = OrderedDict()
     position_index = 7
     if atoms_dict["selective_dynamics"]:
         position_index += 1
@@ -265,7 +277,7 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
     except ValueError:
         atoms = _dict_to_atoms(atoms_dict, read_from_first_line=True)
     if atoms_dict["selective_dynamics"]:
-        constraints_dict = {
+        constraints_dict: Dict[str, List[int]] = {
             label: []
             for label in ["TTT", "TTF", "FTT", "TFT", "TFF", "FFT", "FTF", "FFF"]
         }
@@ -336,7 +348,11 @@ def atoms_from_string(string, read_velocities=False, species_list=None):
         return atoms
 
 
-def _dict_to_atoms(atoms_dict, species_list=None, read_from_first_line=False):
+def _dict_to_atoms(
+    atoms_dict: Dict[str, Any],
+    species_list: Optional[Union[list, np.ndarray]] = None,
+    read_from_first_line: bool = False,
+) -> Atoms:
     """
     Function to convert a generated dict into an structure object
 
@@ -352,8 +368,8 @@ def _dict_to_atoms(atoms_dict, species_list=None, read_from_first_line=False):
     positions = atoms_dict["positions"]
     cell = atoms_dict["cell"]
     symbol = str()
-    elements = list()
-    el_list = list()
+    elements: List[Union[List[str], np.ndarray]] = []
+    el_list: Union[List[str], np.ndarray] = list()
     for i, sp_key in enumerate(atoms_dict["species_dict"].keys()):
         if species_list is not None:
             try:
@@ -391,19 +407,19 @@ def _dict_to_atoms(atoms_dict, species_list=None, read_from_first_line=False):
                 "Species list should be provided since pyiron can't detect species information"
             )
         elements.append(el_list)
-    elements_new = list()
+    elements_new: List[str] = []
     for ele in elements:
         for e in ele:
             elements_new.append(re.split("[^a-zA-Z]", e)[0])
-    elements = elements_new
+    final_elements = elements_new
     if is_absolute:
-        atoms = Atoms(elements, positions=positions, cell=cell, pbc=True)
+        atoms = Atoms(final_elements, positions=positions, cell=cell, pbc=True)
     else:
-        atoms = Atoms(elements, scaled_positions=positions, cell=cell, pbc=True)
+        atoms = Atoms(final_elements, scaled_positions=positions, cell=cell, pbc=True)
     return atoms
 
 
-def vasp_sorter(structure):
+def vasp_sorter(structure: Atoms) -> np.ndarray:
     """
     Routine to sort the indices of a structure as it would be when written to a POSCAR file
 
@@ -423,7 +439,9 @@ def vasp_sorter(structure):
     return np.array(sorted_indices)
 
 
-def manip_contcar(filename, new_filename, add_pos):
+def manip_contcar(
+    filename: str, new_filename: str, add_pos: Union[list, np.ndarray]
+) -> None:
     """
     Manipulate a CONTCAR/POSCAR file by adding something to the positions
 
@@ -434,6 +452,7 @@ def manip_contcar(filename, new_filename, add_pos):
 
     """
     actual_struct = read_atoms(filename)
+    assert isinstance(actual_struct, Atoms)
     n = 0
     direct = True
     with open(filename, "r", errors="ignore") as f:

@@ -58,3 +58,7 @@ style = "pep440-pre"
 versionfile_source = "pyiron_vasp/_version.py"
 parentdir_prefix = "pyiron_vasp"
 tag_prefix = "pyiron_vasp-"
+
+[tool.mypy]
+ignore_missing_imports = true
+disallow_untyped_defs = true
