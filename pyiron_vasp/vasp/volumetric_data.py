@@ -5,10 +5,8 @@
 import os
 import math
 import warnings
-from typing import Optional, Union, List, Tuple, Any, Dict
 
 import numpy as np
-from ase.atoms import Atoms
 from pyiron_vasp.vasp.structure import (
     atoms_from_string,
     get_species_list_from_potcar,
