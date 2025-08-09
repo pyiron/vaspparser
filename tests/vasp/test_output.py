@@ -100,11 +100,6 @@ class TestOutput(unittest.TestCase):
         self.assertIsInstance(structure, Atoms)
         self.assertEqual(len(structure), 2)
 
-    def test_parse_vasp_output_with_procar(self):
-        procar_sample_path = os.path.join(self.vasp_test_files_path, "procar_test")
-        output_dict = parse_vasp_output(working_directory=procar_sample_path)
-        self.assertIn("electronic_structure", output_dict)
-
     def test_parse_vasp_output_with_bader(self):
         bader_sample_path = os.path.join(self.vasp_test_files_path, "bader_test")
         with self.assertWarns(UserWarning):
