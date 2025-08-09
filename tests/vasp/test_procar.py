@@ -28,22 +28,23 @@ class TestProcarParser(unittest.TestCase):
                 es_obj.kpoints[0].bands[0][0].resolved_dos_matrix,
                 np.array(
                     [
-                        [0.144, 0., 0., 0., 0., 0., 0., 0., 0.],
-                        [0.291, 0., 0.006, 0., 0., 0., 0., 0., 0.],
-                        [0.291, 0., 0.006, 0., 0., 0., 0., 0., 0.],
+                        [0.144, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        [0.291, 0.0, 0.006, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        [0.291, 0.0, 0.006, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                     ]
                 ),
             )
         )
         self.assertTrue(
             np.allclose(
-                es_obj.kpoints[0].bands[0][0].atom_resolved_dos, np.array([0.145, 0.298, 0.298])
+                es_obj.kpoints[0].bands[0][0].atom_resolved_dos,
+                np.array([0.145, 0.298, 0.298]),
             )
         )
         self.assertTrue(
             np.allclose(
                 es_obj.kpoints[0].bands[0][0].orbital_resolved_dos,
-                np.array([0.727, 0., 0.013, 0., 0., 0., 0., 0., 0.]),
+                np.array([0.727, 0.0, 0.013, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
             )
         )
         self.assertEqual(es_obj.kpoints[0].bands[0][0].eigenvalue, -17.37867948)
@@ -53,22 +54,23 @@ class TestProcarParser(unittest.TestCase):
                 es_obj.kpoints[0].bands[0][0].resolved_dos_matrix,
                 np.array(
                     [
-                        [0.144, 0., 0., 0., 0., 0., 0., 0., 0.],
-                        [0.291, 0., 0.006, 0., 0., 0., 0., 0., 0.],
-                        [0.291, 0., 0.006, 0., 0., 0., 0., 0., 0.],
+                        [0.144, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        [0.291, 0.0, 0.006, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        [0.291, 0.0, 0.006, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                     ]
                 ),
             )
         )
         self.assertTrue(
             np.allclose(
-                es_obj.kpoints[0].bands[0][0].atom_resolved_dos, np.array([0.145, 0.298, 0.298])
+                es_obj.kpoints[0].bands[0][0].atom_resolved_dos,
+                np.array([0.145, 0.298, 0.298]),
             )
         )
         self.assertTrue(
             np.allclose(
                 es_obj.kpoints[0].bands[0][0].orbital_resolved_dos,
-                np.array([0.727, 0., 0.013, 0., 0., 0., 0., 0., 0.]),
+                np.array([0.727, 0.0, 0.013, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
             )
         )
 

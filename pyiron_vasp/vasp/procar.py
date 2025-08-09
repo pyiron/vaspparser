@@ -51,7 +51,8 @@ class Procar(object):
                     if band_trigger in line.split():
                         eigenvalue, occupancy = self._get_band_details(line)
                         es_obj.kpoints[-1].add_band(
-                            eigenvalue=eigenvalue, occupancy=occupancy,
+                            eigenvalue=eigenvalue,
+                            occupancy=occupancy,
                         )
                         band_obj = es_obj.kpoints[0].bands[0][-1]
                         (
