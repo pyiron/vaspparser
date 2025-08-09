@@ -20,12 +20,14 @@ class TestOutput(unittest.TestCase):
         self.assertIsNotNone(self.output)
 
     def test_structure_setter(self):
-        atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 1]])
+        atoms = Atoms("H2", positions=[[0, 0, 0], [0, 0, 1]])
         self.output.structure = atoms
         self.assertEqual(self.output.structure, atoms)
 
     def test_collect_with_vasprun(self):
-        structure = read_atoms(os.path.join(self.full_job_sample_path, "POSCAR"), species_list=["Fe"])
+        structure = read_atoms(
+            os.path.join(self.full_job_sample_path, "POSCAR"), species_list=["Fe"]
+        )
         self.output.structure = structure
         self.output.collect(directory=self.full_job_sample_path)
         self.assertIsNotNone(self.output.outcar)
@@ -37,7 +39,9 @@ class TestOutput(unittest.TestCase):
         self.assertIsNotNone(self.output.procar)
 
     def test_to_dict(self):
-        structure = read_atoms(os.path.join(self.full_job_sample_path, "POSCAR"), species_list=["Fe"])
+        structure = read_atoms(
+            os.path.join(self.full_job_sample_path, "POSCAR"), species_list=["Fe"]
+        )
         self.output.structure = structure
         self.output.collect(directory=self.full_job_sample_path)
         output_dict = self.output.to_dict()
@@ -60,10 +64,10 @@ class TestOutput(unittest.TestCase):
         self.assertIn("outcar", output_dict)
 
     def test_collect_with_outcar_only(self):
-        outcar_sample_path = os.path.join(
-            self.vasp_test_files_path, "outcar_samples"
+        outcar_sample_path = os.path.join(self.vasp_test_files_path, "outcar_samples")
+        structure = read_atoms(
+            os.path.join(self.full_job_sample_path, "POSCAR"), species_list=["Fe"]
         )
-        structure = read_atoms(os.path.join(self.full_job_sample_path, "POSCAR"), species_list=["Fe"])
         self.output.structure = structure
         with self.assertRaises(IOError):
             self.output.collect(directory=outcar_sample_path)
@@ -72,7 +76,9 @@ class TestOutput(unittest.TestCase):
         corrupted_vasprun_path = os.path.join(
             self.vasp_test_files_path, "corrupted_vasprun"
         )
-        structure = read_atoms(os.path.join(self.full_job_sample_path, "POSCAR"), species_list=["Fe"])
+        structure = read_atoms(
+            os.path.join(self.full_job_sample_path, "POSCAR"), species_list=["Fe"]
+        )
         self.output.structure = structure
         with self.assertWarns(UserWarning):
             self.output.collect(directory=corrupted_vasprun_path)
@@ -80,36 +86,31 @@ class TestOutput(unittest.TestCase):
         self.assertEqual(len(self.output.generic_output.log_dict), 11)
 
     def test_collect_with_no_output_files(self):
-        atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 1]])
+        atoms = Atoms("H2", positions=[[0, 0, 0], [0, 0, 1]])
         self.output.structure = atoms
         with self.assertRaises(IOError):
             self.output.collect(directory=self.vasp_test_files_path)
 
     def test_get_final_structure_from_file(self):
         from pyiron_vasp.vasp.output import get_final_structure_from_file
+
         structure = get_final_structure_from_file(
-            working_directory=self.full_job_sample_path,
-            filename="CONTCAR"
+            working_directory=self.full_job_sample_path, filename="CONTCAR"
         )
         self.assertIsInstance(structure, Atoms)
         self.assertEqual(len(structure), 2)
 
     def test_parse_vasp_output_with_procar(self):
-        procar_sample_path = os.path.join(
-            self.vasp_test_files_path, "procar_test"
-        )
+        procar_sample_path = os.path.join(self.vasp_test_files_path, "procar_test")
         output_dict = parse_vasp_output(working_directory=procar_sample_path)
         self.assertIn("electronic_structure", output_dict)
 
     def test_parse_vasp_output_with_bader(self):
-        bader_sample_path = os.path.join(
-            self.vasp_test_files_path, "bader_test"
-        )
+        bader_sample_path = os.path.join(self.vasp_test_files_path, "bader_test")
         with self.assertWarns(UserWarning):
             output_dict = parse_vasp_output(working_directory=bader_sample_path)
         self.assertNotIn("bader_charges", output_dict["generic"]["dft"])
         self.assertNotIn("bader_volumes", output_dict["generic"]["dft"])
-
 
 
 if __name__ == "__main__":
