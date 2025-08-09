@@ -174,15 +174,11 @@ class ElectronicStructure(object):
 
         """
         if self._eigenvalue_matrix is None and len(self.kpoints) > 0:
-            if len(self.kpoints[0].bands) > 0:
-                self._eigenvalue_matrix = np.zeros(
-                    (len(self.kpoints), len(self.kpoints[0].bands[0]))
-                )
-                for i, k in enumerate(self.kpoints):
-                    if k.eig_occ_matrix.ndim == 3:
-                        self._eigenvalue_matrix[i, :] = k.eig_occ_matrix[0][:, 0]
-                    else:
-                        self._eigenvalue_matrix[i, :] = k.eig_occ_matrix[:, 0]
+            self._eigenvalue_matrix = np.zeros(
+                (len(self.kpoints), len(self.kpoints[0].bands))
+            )
+            for i, k in enumerate(self.kpoints):
+                self._eigenvalue_matrix[i, :] = k.eig_occ_matrix[:, 0]
         return self._eigenvalue_matrix
 
     @eigenvalue_matrix.setter
@@ -196,15 +192,11 @@ class ElectronicStructure(object):
                        band index j is given by occupancy_matrix[i][j]
         """
         if self._occupancy_matrix is None and len(self.kpoints) > 0:
-            if len(self.kpoints[0].bands) > 0:
-                self._occupancy_matrix = np.zeros(
-                    (len(self.kpoints), len(self.kpoints[0].bands[0]))
-                )
-                for i, k in enumerate(self.kpoints):
-                    if k.eig_occ_matrix.ndim == 3:
-                        self._occupancy_matrix[i, :] = k.eig_occ_matrix[0][:, 1]
-                    else:
-                        self._occupancy_matrix[i, :] = k.eig_occ_matrix[:, 1]
+            self._occupancy_matrix = np.zeros(
+                (len(self.kpoints), len(self.kpoints[0].bands))
+            )
+            for i, k in enumerate(self.kpoints):
+                self._occupancy_matrix[i, :] = k.eig_occ_matrix[:, 1]
         return self._occupancy_matrix
 
     @occupancy_matrix.setter
@@ -449,28 +441,26 @@ class ElectronicStructure(object):
 
         """
         if self._grand_dos_matrix is None:
-            if len(self.kpoints) > 0 and len(self.kpoints[0].bands) > 0:
-                if self.kpoints[0].bands[0][0].resolved_dos_matrix is not None:
-                    try:
-                        n_atoms, n_orbitals = np.shape(
-                            self.kpoints[0].bands[0][0].resolved_dos_matrix
+            try:
+                n_atoms, n_orbitals = np.shape(
+                    self.kpoints[0].bands[0][0].resolved_dos_matrix
+                )
+            except ValueError:
+                return self._grand_dos_matrix
+            dimension = (
+                self.n_spins,
+                len(self.kpoints),
+                len(self.kpoints[0].bands),
+                n_atoms,
+                n_orbitals,
+            )
+            self._grand_dos_matrix = np.zeros(dimension)
+            for spin in range(self.n_spins):
+                for i, kpt in enumerate(self.kpoints):
+                    for j, band in enumerate(kpt.bands):
+                        self._grand_dos_matrix[spin, i, j, :, :] = (
+                            band.resolved_dos_matrix
                         )
-                    except (ValueError, IndexError):
-                        return self._grand_dos_matrix
-                    dimension = (
-                        self.n_spins,
-                        len(self.kpoints),
-                        len(self.kpoints[0].bands[0]),
-                        n_atoms,
-                        n_orbitals,
-                    )
-                    self._grand_dos_matrix = np.zeros(dimension)
-                    for spin in range(self.n_spins):
-                        for i, kpt in enumerate(self.kpoints):
-                            for j, band in enumerate(kpt.bands[spin]):
-                                self._grand_dos_matrix[spin, i, j, :, :] = (
-                                    band.resolved_dos_matrix
-                                )
         return self._grand_dos_matrix
 
     @grand_dos_matrix.setter
