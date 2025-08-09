@@ -85,7 +85,6 @@ class TestVolumetricData(unittest.TestCase):
         )
         self.assertAlmostEqual(dist, np.sqrt(0.03))
 
-
     def test_write_cube_file_no_atoms(self):
         self.vol_data.total_data = self.data
         with self.assertRaises(ValueError):

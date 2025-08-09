@@ -58,9 +58,7 @@ class Procar(object):
                             band_obj.resolved_dos_matrix,
                             band_obj.orbital_resolved_dos,
                             band_obj.atom_resolved_dos,
-                        ) = self._get_dos_matrix(
-                            lines[i + 1 : i + num_atoms + 3]
-                        )
+                        ) = self._get_dos_matrix(lines[i + 1 : i + num_atoms + 3])
         return es_obj
 
     @staticmethod

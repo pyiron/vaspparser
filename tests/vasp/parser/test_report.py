@@ -25,9 +25,7 @@ class TestReportParser(unittest.TestCase):
             )
         )
         self.assertTrue(
-            np.array_equal(
-                self.parser.parse_dict["cv_full"], np.array([0.1, 0.2, 0.3])
-            )
+            np.array_equal(self.parser.parse_dict["cv_full"], np.array([0.1, 0.2, 0.3]))
         )
         self.assertTrue(
             np.array_equal(self.parser.parse_dict["cv"], np.array([0.1, 0.2]))

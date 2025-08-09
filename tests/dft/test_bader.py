@@ -19,7 +19,9 @@ class TestBader(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.file_location = os.path.dirname(os.path.abspath(__file__))
-        cls.bader_test_path = os.path.join(cls.file_location, "../static/vasp_test_files/bader_test")
+        cls.bader_test_path = os.path.join(
+            cls.file_location, "../static/vasp_test_files/bader_test"
+        )
 
     def test_parse_charge_vol(self):
         filename = os.path.join(self.file_location, "../static/dft/bader_files/ACF.dat")
