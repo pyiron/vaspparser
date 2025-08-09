@@ -58,3 +58,7 @@ style = "pep440-pre"
 versionfile_source = "pyiron_vasp/_version.py"
 parentdir_prefix = "pyiron_vasp"
 tag_prefix = "pyiron_vasp-"
+
+[tool.coverage.run]
+omit = ["pyiron_vasp/_version.py", "tests/*"]
+command_line = "-m unittest discover tests"
