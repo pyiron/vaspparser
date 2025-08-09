@@ -1,6 +1,6 @@
 [build-system]
-requires = ["ase", "defusedxml", "matplotlib", "numpy", "pandas", "scipy", "setuptools", "versioneer[toml]==0.29"]
-build-backend = "setuptools.build_meta"
+requires = ["ase", "defusedxml", "matplotlib", "numpy", "pandas", "scipy", "hatchling==1.27.0", "hatch-vcs==0.5.0"]
+build-backend = "hatchling.build"
 
 [project]
 name = "pyiron_vasp"
@@ -43,21 +43,27 @@ plot = [
     "matplotlib==3.10.3"
 ]
 
-[tool.setuptools.packages.find]
-include = ["pyiron_vasp*"]
+[tool.hatch.build]
+include = [
+    "pyiron_vasp"
+]
 
-[tool.setuptools.package-data]
-"*" = ["data/*.csv"]
+[tool.hatch.build.hooks.vcs]
+version-file = "pyiron_vasp/_version.py"
 
-[tool.setuptools.dynamic]
-version = {attr = "pyiron_vasp.__version__"}
+[tool.hatch.build.targets.sdist]
+include = [
+    "pyiron_vasp"
+]
 
-[tool.versioneer]
-VCS = "git"
-style = "pep440-pre"
-versionfile_source = "pyiron_vasp/_version.py"
-parentdir_prefix = "pyiron_vasp"
-tag_prefix = "pyiron_vasp-"
+[tool.hatch.build.targets.wheel]
+packages = [
+    "pyiron_vasp"
+]
+
+[tool.hatch.version]
+source = "vcs"
+path = "pyiron_vasp/_version.py"
 
 [tool.coverage.run]
 omit = ["pyiron_vasp/_version.py", "tests/*"]

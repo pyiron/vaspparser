@@ -1,3 +1,3 @@
-from ._version import get_versions
+import pyiron_vasp._version
 
-__version__ = get_versions()["version"]
+__version__ = pyiron_vasp._version.__version__
