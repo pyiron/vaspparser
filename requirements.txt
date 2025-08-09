@@ -1,9 +1,0 @@
-ase ==3.25.0
-coverage
-defusedxml ==0.7.1
-matplotlib
-numpy ==2.3.2
-pandas ==2.3.1
-scipy ==1.16.0
-hatchling ==1.27.0
-hatch-vcs
