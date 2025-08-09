@@ -20,43 +20,57 @@ class TestProcarParser(unittest.TestCase):
         self.assertIsNone(self.parser._check_if_spin_polarized("dummy"))
         es_obj = self.parser.from_file(self.file_path)
         self.assertEqual(len(es_obj.kpoints), 1)
-        self.assertEqual(len(es_obj.kpoints[0].bands[0]), 2)
-        self.assertEqual(es_obj.kpoints[0].bands[0][0].eigenvalue, 1.0)
+        self.assertEqual(len(es_obj.kpoints[0].bands[0]), 1)
+        self.assertEqual(es_obj.kpoints[0].bands[0][0].eigenvalue, -17.37867948)
         self.assertEqual(es_obj.kpoints[0].bands[0][0].occupancy, 1.0)
         self.assertTrue(
             np.allclose(
                 es_obj.kpoints[0].bands[0][0].resolved_dos_matrix,
-                np.array([[0.1, 0.1, 0.1]]),
+                np.array(
+                    [
+                        [0.144, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        [0.291, 0.0, 0.006, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        [0.291, 0.0, 0.006, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    ]
+                ),
             )
         )
         self.assertTrue(
             np.allclose(
-                es_obj.kpoints[0].bands[0][0].atom_resolved_dos, np.array([0.3])
+                es_obj.kpoints[0].bands[0][0].atom_resolved_dos,
+                np.array([0.145, 0.298, 0.298]),
             )
         )
         self.assertTrue(
             np.allclose(
                 es_obj.kpoints[0].bands[0][0].orbital_resolved_dos,
-                np.array([0.1, 0.1, 0.1]),
+                np.array([0.727, 0.0, 0.013, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
             )
         )
-        self.assertEqual(es_obj.kpoints[0].bands[0][1].eigenvalue, 2.0)
-        self.assertEqual(es_obj.kpoints[0].bands[0][1].occupancy, 0.0)
+        self.assertEqual(es_obj.kpoints[0].bands[0][0].eigenvalue, -17.37867948)
+        self.assertEqual(es_obj.kpoints[0].bands[0][0].occupancy, 1.0)
         self.assertTrue(
             np.allclose(
-                es_obj.kpoints[0].bands[0][1].resolved_dos_matrix,
-                np.array([[0.2, 0.2, 0.2]]),
+                es_obj.kpoints[0].bands[0][0].resolved_dos_matrix,
+                np.array(
+                    [
+                        [0.144, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        [0.291, 0.0, 0.006, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        [0.291, 0.0, 0.006, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    ]
+                ),
             )
         )
         self.assertTrue(
             np.allclose(
-                es_obj.kpoints[0].bands[0][1].atom_resolved_dos, np.array([0.6])
+                es_obj.kpoints[0].bands[0][0].atom_resolved_dos,
+                np.array([0.145, 0.298, 0.298]),
             )
         )
         self.assertTrue(
             np.allclose(
-                es_obj.kpoints[0].bands[0][1].orbital_resolved_dos,
-                np.array([0.2, 0.2, 0.2]),
+                es_obj.kpoints[0].bands[0][0].orbital_resolved_dos,
+                np.array([0.727, 0.0, 0.013, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
             )
         )
 

@@ -672,7 +672,7 @@ class Kpoint(object):
     def weight(self, val):
         self._weight = val
 
-    def add_band(self, eigenvalue, occupancy, spin):
+    def add_band(self, eigenvalue, occupancy, spin=0):
         """
         Add a pyiron_atomistics.objects.waves.core.Band instance
 
