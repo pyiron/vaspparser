@@ -12,8 +12,8 @@ import ase.atoms
 from pyiron_vasp.dft.waves.electronic import ElectronicStructure, Kpoint, Band
 from pyiron_vasp.vasp.vasprun import Vasprun
 
-class TestMoreElectronicStructure(unittest.TestCase):
 
+class TestMoreElectronicStructure(unittest.TestCase):
     def setUp(self):
         self.es_obj = ElectronicStructure()
 
@@ -46,19 +46,25 @@ class TestMoreElectronicStructure(unittest.TestCase):
         self.es_obj.orbital_dict = {"s": 0, "p": 1}
         self.assertEqual(self.es_obj.orbital_dict, {"s": 0, "p": 1})
         self.es_obj.eigenvalue_matrix = np.array([[[1, 2], [3, 4]]])
-        self.assertTrue(np.array_equal(self.es_obj.eigenvalue_matrix, np.array([[[1, 2], [3, 4]]])))
+        self.assertTrue(
+            np.array_equal(self.es_obj.eigenvalue_matrix, np.array([[[1, 2], [3, 4]]]))
+        )
         self.es_obj.occupancy_matrix = np.array([[[5, 6], [7, 8]]])
-        self.assertTrue(np.array_equal(self.es_obj.occupancy_matrix, np.array([[[5, 6], [7, 8]]])))
+        self.assertTrue(
+            np.array_equal(self.es_obj.occupancy_matrix, np.array([[[5, 6], [7, 8]]]))
+        )
         self.es_obj.kpoint_list = [1, 2, 3]
         self.assertEqual(self.es_obj.kpoint_list, [1, 2, 3])
         self.es_obj.kpoint_weights = [4, 5, 6]
         self.assertEqual(self.es_obj.kpoint_weights, [4, 5, 6])
-        self.es_obj.structure = Atoms('H2', positions=[[0, 0, 0], [0, 0, 1]])
+        self.es_obj.structure = Atoms("H2", positions=[[0, 0, 0], [0, 0, 1]])
         self.assertIsInstance(self.es_obj.structure, Atoms)
         self.es_obj.efermi = 1.0
         self.assertEqual(self.es_obj.efermi, 1.0)
         self.es_obj.grand_dos_matrix = np.zeros((1, 1, 1, 1, 1))
-        self.assertTrue(np.array_equal(self.es_obj.grand_dos_matrix, np.zeros((1, 1, 1, 1, 1))))
+        self.assertTrue(
+            np.array_equal(self.es_obj.grand_dos_matrix, np.zeros((1, 1, 1, 1, 1)))
+        )
 
     def test_get_vbm_cbm_bandgap(self):
         # Setting up a simple electronic structure
@@ -78,7 +84,6 @@ class TestMoreElectronicStructure(unittest.TestCase):
         self.assertAlmostEqual(self.es_obj.cbm[0], 1.0)
         self.assertAlmostEqual(self.es_obj.eg[0], 2.0)
 
-
     def test_is_metal_exception(self):
         with self.assertRaises(ValueError):
             _ = self.es_obj.is_metal
@@ -95,16 +100,15 @@ class TestMoreElectronicStructure(unittest.TestCase):
         # Monkeypatch Atoms class for the test
         ase.atoms.Atoms.to_dict = ase.atoms.Atoms.todict
 
-        self.es_obj.add_kpoint(value=[0,0,0], weight=1)
+        self.es_obj.add_kpoint(value=[0, 0, 0], weight=1)
         self.es_obj.kpoints[0].add_band(eigenvalue=-1.0, occupancy=1.0, spin=0)
         self.es_obj._eigenvalue_matrix = np.array([[[-1.0]]])
         self.es_obj._occupancy_matrix = np.array([[[1.0]]])
         self.es_obj.efermi = 0.0
-        self.es_obj.structure = Atoms('H', positions=[[0,0,0]])
+        self.es_obj.structure = Atoms("H", positions=[[0, 0, 0]])
         self.es_obj.dos_energies = np.array([1, 2, 3])
         self.es_obj.dos_densities = np.array([[0.1, 0.2, 0.3]])
         self.es_obj.dos_idensities = np.array([[0.1, 0.3, 0.6]])
-
 
         es_dict = self.es_obj.to_dict()
         self.assertIn("TYPE", es_dict)
@@ -122,7 +126,7 @@ class TestMoreElectronicStructure(unittest.TestCase):
     def test_generate_from_matrices(self):
         self.es_obj.kpoint_list = [[0, 0, 0]]
         self.es_obj.kpoint_weights = [1]
-        self.es_obj._eigenvalue_matrix = np.array([[[ -1.0]]])
+        self.es_obj._eigenvalue_matrix = np.array([[[-1.0]]])
         self.es_obj.n_spins = 1
         self.es_obj._occupancy_matrix = np.array([[[1.0]]])
         self.es_obj.generate_from_matrices()
@@ -143,14 +147,18 @@ class TestMoreElectronicStructure(unittest.TestCase):
 
     def test_get_resolved_dos(self):
         self.es_obj.dos_energies = np.array([1, 2, 3])
-        self.es_obj.resolved_densities = np.ones((2, 2, 3, 3)) # s, a, o, n
+        self.es_obj.resolved_densities = np.ones((2, 2, 3, 3))  # s, a, o, n
 
         # Test with integer indices
-        rdos = self.es_obj.get_resolved_dos(spin_indices=0, atom_indices=0, orbital_indices=0)
+        rdos = self.es_obj.get_resolved_dos(
+            spin_indices=0, atom_indices=0, orbital_indices=0
+        )
         self.assertTrue(np.array_equal(rdos, np.ones(3)))
 
         # Test with list indices
-        rdos = self.es_obj.get_resolved_dos(spin_indices=[0, 1], atom_indices=[0, 1], orbital_indices=[0, 1, 2])
+        rdos = self.es_obj.get_resolved_dos(
+            spin_indices=[0, 1], atom_indices=[0, 1], orbital_indices=[0, 1, 2]
+        )
         self.assertTrue(np.allclose(rdos, 2 * 2 * 3 * np.ones(3)))
 
         # Test with mixed indices and summation
@@ -160,13 +168,15 @@ class TestMoreElectronicStructure(unittest.TestCase):
         rdos = self.es_obj.get_resolved_dos(spin_indices=0, orbital_indices=[0, 1, 2])
         self.assertTrue(np.allclose(rdos, 2 * 3 * np.ones(3)))
 
-        rdos = self.es_obj.get_resolved_dos(spin_indices=0, atom_indices=0, orbital_indices=[0, 1])
-        self.assertTrue(np.allclose(rdos, 2*np.ones(3)))
+        rdos = self.es_obj.get_resolved_dos(
+            spin_indices=0, atom_indices=0, orbital_indices=[0, 1]
+        )
+        self.assertTrue(np.allclose(rdos, 2 * np.ones(3)))
 
     def test_plot_fermi_dirac(self):
         # This is a plot function, so we just check if it runs without error
         # A more thorough test would require a library to check plot outputs
-        self.es_obj.add_kpoint(value=[0,0,0], weight=1)
+        self.es_obj.add_kpoint(value=[0, 0, 0], weight=1)
         self.es_obj.kpoints[0].add_band(eigenvalue=-1.0, occupancy=1.0, spin=0)
         self.es_obj.efermi = 0
         self.es_obj._eigenvalue_matrix = np.array([[[-1.0]]])
@@ -186,7 +196,7 @@ class TestMoreElectronicStructure(unittest.TestCase):
 
     def test_repr(self):
         self.es_obj._eigenvalue_matrix = np.array([[[-1.0]]])
-        self.es_obj.add_kpoint([0,0,0], 1)
+        self.es_obj.add_kpoint([0, 0, 0], 1)
         self.es_obj.kpoints[0].add_band(-1.0, 1.0, spin=0)
         self.assertIn("ElectronicStructure Instance", repr(self.es_obj))
 
@@ -218,7 +228,7 @@ class TestMoreElectronicStructure(unittest.TestCase):
     def test_generate_from_matrices_with_grand_dos(self):
         self.es_obj.kpoint_list = [[0, 0, 0]]
         self.es_obj.kpoint_weights = [1]
-        self.es_obj._eigenvalue_matrix = np.array([[[ -1.0]]])
+        self.es_obj._eigenvalue_matrix = np.array([[[-1.0]]])
         self.es_obj.n_spins = 1
         self.es_obj._occupancy_matrix = np.array([[[1.0]]])
         self.es_obj._grand_dos_matrix = np.ones((1, 1, 1, 2, 3))
@@ -240,6 +250,7 @@ class TestMoreElectronicStructure(unittest.TestCase):
         eig_occ = kpt.eig_occ_matrix
         self.assertEqual(eig_occ.shape, (1, 2, 2))
         self.assertTrue(np.array_equal(eig_occ[0], [[-1.0, 1.0], [1.0, 0.0]]))
+
 
 if __name__ == "__main__":
     unittest.main()

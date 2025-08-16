@@ -8,8 +8,8 @@ from unittest.mock import Mock
 
 from pyiron_vasp.dft.waves.dos import Dos, NoResolvedDosError
 
-class TestMoreDos(unittest.TestCase):
 
+class TestMoreDos(unittest.TestCase):
     def setUp(self):
         self.mock_es = Mock()
         self.mock_es.eigenvalues = [np.array([-1, 0, 1])]
@@ -67,8 +67,11 @@ class TestMoreDos(unittest.TestCase):
         # To cover the 'else' block for 'if index >= 0'
         self.mock_es.eigenvalues = [np.array([-10, 0, 1])]
         dos = Dos(es_obj=self.mock_es)
-        rdos = dos.get_spatial_orbital_resolved_dos(atom_indices=[0], orbital_indices=[0], spin_indices=0)
+        rdos = dos.get_spatial_orbital_resolved_dos(
+            atom_indices=[0], orbital_indices=[0], spin_indices=0
+        )
         self.assertEqual(rdos.flatten().shape, dos.t_dos[0].shape)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

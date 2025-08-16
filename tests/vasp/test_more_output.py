@@ -5,13 +5,17 @@
 import unittest
 import os
 import shutil
-from pyiron_vasp.vasp.output import Output, parse_vasp_output, get_final_structure_from_file
+from pyiron_vasp.vasp.output import (
+    Output,
+    parse_vasp_output,
+    get_final_structure_from_file,
+)
 from pyiron_vasp.vasp.structure import read_atoms
 import numpy as np
 from ase.atoms import Atoms
 
-class TestMoreOutput(unittest.TestCase):
 
+class TestMoreOutput(unittest.TestCase):
     def setUp(self):
         self.output = Output()
         self.vasp_test_files_path = os.path.join(
@@ -50,17 +54,24 @@ class TestMoreOutput(unittest.TestCase):
         self.assertIn("electrostatic_potential", output_dict)
 
     def test_get_final_structure_no_structure(self):
-        structure = get_final_structure_from_file(working_directory=self.full_job_sample_path, filename="CONTCAR", structure=None)
+        structure = get_final_structure_from_file(
+            working_directory=self.full_job_sample_path,
+            filename="CONTCAR",
+            structure=None,
+        )
         self.assertIsInstance(structure, Atoms)
 
     def test_get_final_structure_io_error(self):
         with self.assertRaises(IOError):
-            get_final_structure_from_file(working_directory=self.temp_dir, filename="non_existent_file.xyz")
+            get_final_structure_from_file(
+                working_directory=self.temp_dir, filename="non_existent_file.xyz"
+            )
 
     def test_parse_vasp_output_no_contcar(self):
         os.remove(os.path.join(self.temp_dir, "CONTCAR"))
         output_dict = parse_vasp_output(working_directory=self.temp_dir)
         self.assertIn("generic", output_dict)
+
 
 if __name__ == "__main__":
     unittest.main()
