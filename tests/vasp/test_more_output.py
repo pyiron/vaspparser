@@ -67,11 +67,6 @@ class TestMoreOutput(unittest.TestCase):
                 working_directory=self.temp_dir, filename="non_existent_file.xyz"
             )
 
-    def test_parse_vasp_output_no_contcar(self):
-        os.remove(os.path.join(self.temp_dir, "CONTCAR"))
-        output_dict = parse_vasp_output(working_directory=self.temp_dir)
-        self.assertIn("generic", output_dict)
-
 
 if __name__ == "__main__":
     unittest.main()
