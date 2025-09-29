@@ -27,9 +27,9 @@ classifiers = [
 dependencies = [
     "ase==3.26.0",
     "defusedxml==0.7.1",
-    "numpy==2.3.2",
+    "numpy==2.3.3",
     "pandas==2.3.2",
-    "scipy==1.16.1",
+    "scipy==1.16.2",
 ]
 dynamic = ["version"]
 
@@ -40,7 +40,7 @@ Repository = "https://github.com/pyiron/pyiron_vasp"
 
 [project.optional-dependencies]
 plot = [
-    "matplotlib==3.10.3"
+    "matplotlib==3.10.6"
 ]
 
 [tool.hatch.build]
