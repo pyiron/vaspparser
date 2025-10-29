@@ -41,7 +41,7 @@ Repository = "https://github.com/pyiron/pyiron_vasp"
 
 [project.optional-dependencies]
 plot = [
-    "matplotlib==3.10.6"
+    "matplotlib==3.10.7"
 ]
 
 [tool.hatch.build]
