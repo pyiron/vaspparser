@@ -2,6 +2,7 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
+from typing import Dict
 import numpy as np
 from scipy.integrate import cumulative_trapezoid
 
@@ -22,10 +23,10 @@ class Report(object):
     This module is used to parse VASP REPORT files
     """
 
-    def __init__(self):
-        self.parse_dict = dict()
+    def __init__(self) -> None:
+        self.parse_dict: Dict[str, np.ndarray] = dict()
 
-    def from_file(self, filename="REPORT"):
+    def from_file(self, filename: str = "REPORT") -> None:
         """
         Reads values from files and stores it in the `parse_dict` attribute
 
