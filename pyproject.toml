@@ -46,26 +46,26 @@ plot = [
 
 [tool.hatch.build]
 include = [
-    "pyiron_vasp"
+    "src/pyiron_vasp"
 ]
 
 [tool.hatch.build.hooks.vcs]
-version-file = "pyiron_vasp/_version.py"
+version-file = "src/pyiron_vasp/_version.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "pyiron_vasp"
+    "src/pyiron_vasp"
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = [
-    "pyiron_vasp"
+    "src/pyiron_vasp"
 ]
 
 [tool.hatch.version]
 source = "vcs"
-path = "pyiron_vasp/_version.py"
+path = "src/pyiron_vasp/_version.py"
 
 [tool.coverage.run]
-omit = ["pyiron_vasp/_version.py", "tests/*"]
+source = ["pyiron_vasp"]
 command_line = "-m unittest discover tests"
