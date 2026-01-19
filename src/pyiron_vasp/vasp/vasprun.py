@@ -14,7 +14,6 @@ import defusedxml.cElementTree as ETree
 from defusedxml.ElementTree import ParseError
 import warnings
 
-
 __author__ = "Sudarsan Surendralal"
 __copyright__ = (
     "Copyright 2021, Max-Planck-Institut für Eisenforschung GmbH - "

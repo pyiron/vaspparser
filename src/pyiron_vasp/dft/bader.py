@@ -8,7 +8,6 @@ import subprocess
 
 from pyiron_vasp.vasp.volumetric_data import VaspVolumetricData
 
-
 __author__ = "Sudarsan Surendralal"
 __copyright__ = (
     "Copyright 2021, Max-Planck-Institut für Eisenforschung GmbH - "
