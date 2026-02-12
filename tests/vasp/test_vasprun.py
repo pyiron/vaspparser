@@ -7,8 +7,8 @@ import os
 import posixpath
 import numpy as np
 from ase.atoms import Atoms
-from pyiron_vasp.vasp.vasprun import Vasprun, VasprunError
-from pyiron_vasp.dft.waves.electronic import ElectronicStructure
+from vaspparser.vasp.vasprun import Vasprun, VasprunError
+from vaspparser.dft.waves.electronic import ElectronicStructure
 
 __author__ = "surendralal"
 

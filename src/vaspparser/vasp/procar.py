@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from pyiron_vasp.dft.waves.electronic import ElectronicStructure
+from vaspparser.dft.waves.electronic import ElectronicStructure
 
 __author__ = "Sudarsan Surendralal"
 __copyright__ = (

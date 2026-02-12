@@ -5,7 +5,7 @@
 import os
 import unittest
 import numpy as np
-from pyiron_vasp.vasp.parser.report import Report
+from vaspparser.vasp.parser.report import Report
 
 
 class TestReportParser(unittest.TestCase):

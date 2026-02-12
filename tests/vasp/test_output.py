@@ -1,7 +1,7 @@
 import unittest
 import os
-from pyiron_vasp.vasp.output import Output, parse_vasp_output
-from pyiron_vasp.vasp.structure import read_atoms
+from vaspparser.vasp.output import Output, parse_vasp_output
+from vaspparser.vasp.structure import read_atoms
 import numpy as np
 from ase.atoms import Atoms
 
@@ -92,7 +92,7 @@ class TestOutput(unittest.TestCase):
             self.output.collect(directory=self.vasp_test_files_path)
 
     def test_get_final_structure_from_file(self):
-        from pyiron_vasp.vasp.output import get_final_structure_from_file
+        from vaspparser.vasp.output import get_final_structure_from_file
 
         structure = get_final_structure_from_file(
             working_directory=self.full_job_sample_path, filename="CONTCAR"

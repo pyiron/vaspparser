@@ -3,7 +3,7 @@ requires = ["ase", "defusedxml", "matplotlib", "numpy", "pandas", "scipy", "hatc
 build-backend = "hatchling.build"
 
 [project]
-name = "pyiron_vasp"
+name = "vaspparser"
 description = "Parser for the Vienna Ab initio Simulation Package (VASP)"
 authors = [
     { name = "Jan Janssen", email = "janssen@mpie.de" },
@@ -36,8 +36,8 @@ dynamic = ["version"]
 
 [project.urls]
 Homepage = "https://pyiron.org"
-Documentation = "https://pyiron_vasp.readthedocs.io"
-Repository = "https://github.com/pyiron/pyiron_vasp"
+Documentation = "https://vaspparser.readthedocs.io"
+Repository = "https://github.com/pyiron/vaspparser"
 
 [project.optional-dependencies]
 plot = [
@@ -46,26 +46,26 @@ plot = [
 
 [tool.hatch.build]
 include = [
-    "src/pyiron_vasp"
+    "src/vaspparser"
 ]
 
 [tool.hatch.build.hooks.vcs]
-version-file = "src/pyiron_vasp/_version.py"
+version-file = "src/vaspparser/_version.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "src/pyiron_vasp"
+    "src/vaspparser"
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = [
-    "src/pyiron_vasp"
+    "src/vaspparser"
 ]
 
 [tool.hatch.version]
 source = "vcs"
-path = "src/pyiron_vasp/_version.py"
+path = "src/vaspparser/_version.py"
 
 [tool.coverage.run]
-source = ["pyiron_vasp"]
+source = ["vaspparser"]
 command_line = "-m unittest discover tests"

@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 from unittest.mock import Mock
 
-from pyiron_vasp.dft.waves.dos import Dos, NoResolvedDosError
+from vaspparser.dft.waves.dos import Dos, NoResolvedDosError
 
 
 class TestMoreDos(unittest.TestCase):

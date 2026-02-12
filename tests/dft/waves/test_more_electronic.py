@@ -9,8 +9,8 @@ import numpy as np
 from ase.atoms import Atoms
 import ase.atoms
 
-from pyiron_vasp.dft.waves.electronic import ElectronicStructure, Kpoint, Band
-from pyiron_vasp.vasp.vasprun import Vasprun
+from vaspparser.dft.waves.electronic import ElectronicStructure, Kpoint, Band
+from vaspparser.vasp.vasprun import Vasprun
 
 
 class TestMoreElectronicStructure(unittest.TestCase):

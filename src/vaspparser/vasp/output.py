@@ -4,15 +4,15 @@ import posixpath
 import numpy as np
 
 from ase.atoms import Atoms
-from pyiron_vasp.vasp.parser.outcar import Outcar, OutcarCollectError
-from pyiron_vasp.vasp.parser.oszicar import Oszicar
-from pyiron_vasp.vasp.procar import Procar
-from pyiron_vasp.vasp.structure import read_atoms, vasp_sorter
-from pyiron_vasp.vasp.vasprun import Vasprun as Vr
-from pyiron_vasp.vasp.vasprun import VasprunError, VasprunWarning
-from pyiron_vasp.vasp.volumetric_data import VaspVolumetricData
-from pyiron_vasp.dft.bader import Bader
-from pyiron_vasp.dft.waves.electronic import ElectronicStructure
+from vaspparser.vasp.parser.outcar import Outcar, OutcarCollectError
+from vaspparser.vasp.parser.oszicar import Oszicar
+from vaspparser.vasp.procar import Procar
+from vaspparser.vasp.structure import read_atoms, vasp_sorter
+from vaspparser.vasp.vasprun import Vasprun as Vr
+from vaspparser.vasp.vasprun import VasprunError, VasprunWarning
+from vaspparser.vasp.volumetric_data import VaspVolumetricData
+from vaspparser.dft.bader import Bader
+from vaspparser.dft.waves.electronic import ElectronicStructure
 import warnings
 
 

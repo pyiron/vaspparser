@@ -6,7 +6,7 @@ import numpy as np
 import os
 import subprocess
 
-from pyiron_vasp.vasp.volumetric_data import VaspVolumetricData
+from vaspparser.vasp.volumetric_data import VaspVolumetricData
 
 __author__ = "Sudarsan Surendralal"
 __copyright__ = (

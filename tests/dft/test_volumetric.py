@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 import os
 from ase.atoms import Atoms
-from pyiron_vasp.dft.volumetric import VolumetricData
+from vaspparser.dft.volumetric import VolumetricData
 
 
 class TestVolumetricData(unittest.TestCase):

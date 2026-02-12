@@ -9,7 +9,7 @@ from ase.atoms import Atoms
 from ase.constraints import FixCartesian
 import numpy as np
 from collections import OrderedDict
-from pyiron_vasp.dft.waves.electronic import ElectronicStructure
+from vaspparser.dft.waves.electronic import ElectronicStructure
 import defusedxml.cElementTree as ETree
 from defusedxml.ElementTree import ParseError
 import warnings

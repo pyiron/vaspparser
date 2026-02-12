@@ -7,11 +7,11 @@ import math
 import warnings
 
 import numpy as np
-from pyiron_vasp.vasp.structure import (
+from vaspparser.vasp.structure import (
     atoms_from_string,
     get_species_list_from_potcar,
 )
-from pyiron_vasp.dft.volumetric import VolumetricData
+from vaspparser.dft.volumetric import VolumetricData
 
 __author__ = "Sudarsan Surendralal"
 __copyright__ = (
