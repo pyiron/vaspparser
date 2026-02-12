@@ -2,9 +2,10 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
-import numpy as np
 import os
 import subprocess
+
+import numpy as np
 
 from vaspparser.vasp.volumetric_data import VaspVolumetricData
 

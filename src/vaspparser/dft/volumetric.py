@@ -4,6 +4,7 @@
 
 import numpy as np
 from ase.atoms import Atoms
+
 from vaspparser.vasp.structure import write_poscar
 
 __author__ = "Sudarsan Surendralal, Su-Hyun Yoo"

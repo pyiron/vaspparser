@@ -4,15 +4,16 @@
 
 import os
 import re
+import warnings
+from collections import OrderedDict
 
+import defusedxml.cElementTree as ETree
+import numpy as np
 from ase.atoms import Atoms
 from ase.constraints import FixCartesian
-import numpy as np
-from collections import OrderedDict
-from vaspparser.dft.waves.electronic import ElectronicStructure
-import defusedxml.cElementTree as ETree
 from defusedxml.ElementTree import ParseError
-import warnings
+
+from vaspparser.dft.waves.electronic import ElectronicStructure
 
 __author__ = "Sudarsan Surendralal"
 __copyright__ = (

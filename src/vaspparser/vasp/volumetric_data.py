@@ -2,16 +2,17 @@
 # Copyright (c) Max-Planck-Institut für Eisenforschung GmbH - Computational Materials Design (CM) Department
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
-import os
 import math
+import os
 import warnings
 
 import numpy as np
+
+from vaspparser.dft.volumetric import VolumetricData
 from vaspparser.vasp.structure import (
     atoms_from_string,
     get_species_list_from_potcar,
 )
-from vaspparser.dft.volumetric import VolumetricData
 
 __author__ = "Sudarsan Surendralal"
 __copyright__ = (

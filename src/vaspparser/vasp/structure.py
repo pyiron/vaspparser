@@ -4,11 +4,12 @@
 
 import os
 import re
+import warnings
 from collections import OrderedDict
+
+import numpy as np
 from ase.atoms import Atoms
 from ase.constraints import FixCartesian
-import numpy as np
-import warnings
 
 __author__ = "Sudarsan Surendralal"
 __copyright__ = (

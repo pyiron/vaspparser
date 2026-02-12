@@ -1,19 +1,21 @@
 from __future__ import print_function
+
 import os
 import posixpath
-import numpy as np
+import warnings
 
+import numpy as np
 from ase.atoms import Atoms
-from vaspparser.vasp.parser.outcar import Outcar, OutcarCollectError
+
+from vaspparser.dft.bader import Bader
+from vaspparser.dft.waves.electronic import ElectronicStructure
 from vaspparser.vasp.parser.oszicar import Oszicar
+from vaspparser.vasp.parser.outcar import Outcar, OutcarCollectError
 from vaspparser.vasp.procar import Procar
 from vaspparser.vasp.structure import read_atoms, vasp_sorter
 from vaspparser.vasp.vasprun import Vasprun as Vr
 from vaspparser.vasp.vasprun import VasprunError, VasprunWarning
 from vaspparser.vasp.volumetric_data import VaspVolumetricData
-from vaspparser.dft.bader import Bader
-from vaspparser.dft.waves.electronic import ElectronicStructure
-import warnings
 
 
 class Output:
