@@ -8,9 +8,9 @@ import posixpath
 import numpy as np
 from ase.atoms import Atoms
 
-from pyiron_vasp.dft.waves.electronic import ElectronicStructure
-from pyiron_vasp.vasp.vasprun import Vasprun
-from pyiron_vasp.dft.waves.dos import Dos
+from vaspparser.dft.waves.electronic import ElectronicStructure
+from vaspparser.vasp.vasprun import Vasprun
+from vaspparser.dft.waves.dos import Dos
 
 """
 @author: surendralal

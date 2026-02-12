@@ -5,13 +5,13 @@
 import unittest
 import numpy as np
 import os
-from pyiron_vasp.dft.bader import (
+from vaspparser.dft.bader import (
     parse_charge_vol_file,
     get_valence_and_total_charge_density,
     Bader,
     call_bader,
 )
-from pyiron_vasp.vasp.structure import read_atoms
+from vaspparser.vasp.structure import read_atoms
 from unittest.mock import patch, MagicMock
 
 
@@ -44,14 +44,14 @@ class TestBader(unittest.TestCase):
         self.assertIsNone(cd_val.total_data)
         self.assertIsNone(cd_total.total_data)
 
-    @patch("pyiron_vasp.dft.bader.call_bader")
-    @patch("pyiron_vasp.dft.bader.os.remove")
+    @patch("vaspparser.dft.bader.call_bader")
+    @patch("vaspparser.dft.bader.os.remove")
     def test_bader_class(self, mock_remove, mock_call_bader):
         mock_call_bader.return_value = 0
         struct = read_atoms(os.path.join(self.bader_test_path, "POSCAR"))
         bader = Bader(structure=struct, working_directory=self.bader_test_path)
         with patch(
-            "pyiron_vasp.dft.bader.parse_charge_vol_file"
+            "vaspparser.dft.bader.parse_charge_vol_file"
         ) as mock_parse_charge_vol_file:
             mock_parse_charge_vol_file.return_value = (
                 np.array([1.0]),
@@ -63,15 +63,15 @@ class TestBader(unittest.TestCase):
             self.assertTrue(np.allclose(charges, [1.0]))
             self.assertTrue(np.allclose(volumes, [1.0]))
 
-    @patch("pyiron_vasp.dft.bader.subprocess.call")
+    @patch("vaspparser.dft.bader.subprocess.call")
     def test_call_bader(self, mock_subprocess_call):
         mock_subprocess_call.return_value = 0
         error_code = call_bader(foldername=self.bader_test_path)
         self.assertEqual(error_code, 0)
         self.assertTrue(mock_subprocess_call.called)
 
-    @patch("pyiron_vasp.dft.bader.call_bader")
-    @patch("pyiron_vasp.dft.bader.os.remove")
+    @patch("vaspparser.dft.bader.call_bader")
+    @patch("vaspparser.dft.bader.os.remove")
     def test_bader_class_error(self, mock_remove, mock_call_bader):
         mock_call_bader.return_value = 1
         struct = read_atoms(os.path.join(self.bader_test_path, "POSCAR"))

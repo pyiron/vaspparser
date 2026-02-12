@@ -5,12 +5,12 @@
 import unittest
 import os
 import shutil
-from pyiron_vasp.vasp.output import (
+from vaspparser.vasp.output import (
     Output,
     parse_vasp_output,
     get_final_structure_from_file,
 )
-from pyiron_vasp.vasp.structure import read_atoms
+from vaspparser.vasp.structure import read_atoms
 import numpy as np
 from ase.atoms import Atoms
 

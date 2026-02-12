@@ -9,7 +9,7 @@ import numpy as np
 
 from ase.atoms import Atoms
 from ase.constraints import FixCartesian
-from pyiron_vasp.vasp.structure import (
+from vaspparser.vasp.structure import (
     read_atoms,
     write_poscar,
     vasp_sorter,

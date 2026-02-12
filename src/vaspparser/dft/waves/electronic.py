@@ -4,10 +4,10 @@
 
 from __future__ import print_function
 
-from ase.atoms import Atoms
 import numpy as np
+from ase.atoms import Atoms
 
-from pyiron_vasp.dft.waves.dos import Dos
+from vaspparser.dft.waves.dos import Dos
 
 __author__ = "Sudarsan Surendralal"
 __copyright__ = (

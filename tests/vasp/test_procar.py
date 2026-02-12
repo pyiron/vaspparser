@@ -5,7 +5,7 @@
 import os
 import unittest
 import numpy as np
-from pyiron_vasp.vasp.procar import Procar
+from vaspparser.vasp.procar import Procar
 
 
 class TestProcarParser(unittest.TestCase):
