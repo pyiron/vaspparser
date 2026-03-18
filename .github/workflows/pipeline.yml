@@ -64,6 +64,18 @@ jobs:
         pip install . --no-deps --no-build-isolation
         pip check
 
+  uv_check:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v7
+    - name: Install the project and pip check
+      shell: bash -l {0}
+      run: |
+        uv sync --all-extras --dev
+        pip check
+
   unittest_matrix:
     needs: [black]
     runs-on: ${{ matrix.operating-system }}
