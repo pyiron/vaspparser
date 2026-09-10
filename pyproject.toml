@@ -41,7 +41,7 @@ Repository = "https://github.com/pyiron/vaspparser"
 
 [project.optional-dependencies]
 plot = [
-    "matplotlib==3.10.9"
+    "matplotlib==3.11.1"
 ]
 
 [tool.ruff]
