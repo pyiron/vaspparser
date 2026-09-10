@@ -4,8 +4,8 @@ dependencies:
 - ase =3.29.0
 - coverage
 - defusedxml =0.7.1
-- matplotlib-base =3.10.9
-- numpy =2.5.1
+- matplotlib-base =3.11.1
+- numpy =2.5.3
 - pandas =3.0.5
 - scipy =1.18.0
 - hatchling =1.32.0
