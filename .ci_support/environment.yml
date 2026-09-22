@@ -7,6 +7,6 @@ dependencies:
 - matplotlib-base =3.11.1
 - numpy =2.5.3
 - pandas =3.0.5
-- scipy =1.18.0
+- scipy =1.18.1
 - hatchling =1.32.4
 - hatch-vcs =0.5.0
