@@ -14,7 +14,8 @@ def get_setup_version_and_pattern(setup_content):
                 .split(",")
             )
             for dep in lst:
-                if dep != "\n":
+                dep = dep.strip()
+                if dep != "":
                     version_lst.append(dep.split("==")[1])
                     depend_lst.append(dep.split("==")[0])
 
@@ -36,11 +37,28 @@ def get_env_version(env_content):
     return {d: v for d, v in zip(depend_lst, version_lst)}
 
 
+def get_next_minor_version(version):
+    """Return the next minor release of ``version``, e.g. 2.5.3 -> 2.6.0.
+
+    Falls back to ``None`` when the minor component is not an integer, in which
+    case the caller keeps the conservative ``<=pin`` cap.
+    """
+    parts = version.split(".")
+    if len(parts) < 2 or not parts[0].isdigit() or not parts[1].isdigit():
+        return None
+    return parts[0] + "." + str(int(parts[1]) + 1) + ".0"
+
+
 def update_dependencies(setup_content, version_low_dict, version_high_dict):
     version_combo_dict = {}
     for dep, ver in version_high_dict.items():
         if dep in version_low_dict.keys() and version_low_dict[dep] != ver:
-            version_combo_dict[dep] = dep + ">=" + version_low_dict[dep] + ",<=" + ver
+            upper = get_next_minor_version(ver)
+            if upper is None:
+                upper_cap = ",<=" + ver
+            else:
+                upper_cap = ",<" + upper
+            version_combo_dict[dep] = dep + ">=" + version_low_dict[dep] + upper_cap
         else:
             version_combo_dict[dep] = dep + "==" + ver
 
