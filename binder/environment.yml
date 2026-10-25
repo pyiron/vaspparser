@@ -3,7 +3,7 @@ channels:
 dependencies:
 - ase =3.29.0
 - defusedxml =0.7.1
-- matplotlib-base =3.11.1
+- matplotlib-base =3.11.2
 - numpy =2.5.4
 - pandas =3.0.6
 - python =3.14
