@@ -3,9 +3,9 @@ channels:
 dependencies:
 - ase =3.23.0
 - defusedxml =0.7.0
-- matplotlib-base =3.5.3
+- matplotlib-base =3.6.3
 - numpy =1.26.0
 - pandas =2.0.3
 - scipy =1.11.1
-- hatchling =1.27.0
+- hatchling =1.33.0
 - hatch-vcs =0.4.0
