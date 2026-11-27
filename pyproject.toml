@@ -41,6 +41,10 @@ Repository = "https://github.com/pyiron/vaspparser"
 plot = [
     "matplotlib==3.11.2"
 ]
+compatibility = [
+    "seekpath==2.2.2",
+    "spglib==2.7.0",
+]
 docs = [
     "myst-parser",
     "nbsphinx",

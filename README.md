@@ -145,6 +145,42 @@ bader = Bader(structure=structure, working_directory="path/to/calculation")
 charges, volumes = bader.compute_bader_charges()
 ```
 
+### Running VASP: the pyiron compatibility interface
+
+`vaspparser.compatibility` provides the input options of the VASP job object of
+`pyiron_atomistics` as a single function, without depending on `pyiron_base` or
+`pyiron_atomistics`, so it can be used with any Python workflow system. It follows the
+LAMMPS equivalent `lammpsparser.compatibility.file.lammps_file_interface_function()` and the
+signature of `pyiron_atomistics.vasp.vasp.vasp_function()`: each setter of the job object is a
+`*_kwargs` argument, which accepts a dictionary or a dataclass from
+`vaspparser.compatibility.data`.
+
+```python
+from ase.build import bulk
+from vaspparser.compatibility.file import vasp_file_interface_function
+
+shell_output, parsed_output, job_crashed = vasp_file_interface_function(
+    working_directory="vasp_calculation",
+    structure=bulk("Al", a=4.04),
+    plane_wave_cutoff=300,  # job.set_encut(300)
+    kpoints_kwargs={"mesh": [8, 8, 8]},  # job.set_kpoints(mesh=[8, 8, 8])
+    occupancy_smearing_kwargs={"smearing": "methfessel_paxton", "width": 0.1},
+    calc_mode="minimize",  # job.calc_minimize(pressure=0.0)
+    calc_kwargs={"pressure": 0.0},
+    vasp_command="mpirun -np 2 vasp_std",
+    resource_path="path/to/pyiron/resources",  # potentials_vasp.csv + potpaw_PBE/
+)
+parsed_output["generic"]["energy_tot"]
+```
+
+Initial magnetic moments of the structure are written to `MAGMOM` (vector moments switch on
+`LNONCOLLINEAR`), `FixAtoms`/`FixCartesian` constraints become selective dynamics, and
+restarts from previous calculations use the helpers `restart_from_charge_density()`,
+`restart_from_wave_functions()`, `restart_from_wave_and_charge()` and
+`restart_for_band_structure_calculations()`. The input files can be generated without running
+VASP with `get_vasp_input()`. The band structure helpers need the optional `spglib` and
+`seekpath` packages (`pip install vaspparser[compatibility]`).
+
 ## Documentation
 
 * [vaspparser](https://vaspparser.readthedocs.io/en/latest/README.html)
