@@ -6,6 +6,8 @@ import tempfile
 import unittest
 import warnings
 from dataclasses import dataclass
+from types import SimpleNamespace
+from unittest.mock import patch
 
 import numpy as np
 from ase.build import bulk
@@ -16,6 +18,7 @@ from vaspparser.compatibility.calculate import (
     calc_minimize,
     calc_static,
     get_icharg_value,
+    set_algorithm,
     set_convergence_precision,
     set_coulomb_interactions,
     set_electric_field,
@@ -23,7 +26,10 @@ from vaspparser.compatibility.calculate import (
     set_fft_mesh,
     set_mixing_parameters,
     set_occupancy_smearing,
+    set_rwigs,
     set_spin_constraint,
+    set_write_resolved_dos,
+    set_write_wave_funct,
     write_magmoms,
 )
 from vaspparser.compatibility.data import (
@@ -43,6 +49,7 @@ from vaspparser.compatibility.file import (
     restart_from_wave_and_charge,
     restart_from_wave_functions,
     vasp_file_interface_function,
+    write_vasp_input,
 )
 from vaspparser.compatibility.input import (
     Incar,
@@ -50,6 +57,7 @@ from vaspparser.compatibility.input import (
     get_k_mesh_by_density,
     get_nelect,
     get_potcar_files,
+    get_potential_table,
     get_resource_path,
     set_kpoints,
 )
@@ -167,6 +175,42 @@ class TestIncarKpoints(unittest.TestCase):
             get_k_mesh_by_density(np.eye(3) * 100.0, k_mesh_spacing=0.5), [1, 1, 1]
         )
 
+    def test_kpoints_validation_and_overrides(self):
+        structure = bulk("Al", a=4.0)
+        incar, kpoints = Incar(), Kpoints()
+        with self.assertWarnsRegex(UserWarning, "mesh value is overwritten"):
+            set_kpoints(
+                incar, kpoints, structure, mesh=[9, 9, 9], k_mesh_spacing=0.5
+            )
+        self.assertEqual(kpoints[3], "5 5 5")
+        with self.assertWarnsRegex(UserWarning, "center_shift"):
+            set_kpoints(incar, Kpoints(), structure, center_shift=[-0.1, 0, 0])
+        for kwargs in (
+            {"scheme": "Manual"},
+            {"scheme": "Manual", "manual_kpoints": [[0, 0, 0]], "weights": []},
+            {"scheme": "Line"},
+            {
+                "scheme": "Line",
+                "n_path": 3,
+                "high_symmetry_points": {},
+                "high_symmetry_path": {},
+                "path_name": "missing",
+            },
+        ):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                set_kpoints(incar, Kpoints(), structure, **kwargs)
+        manual = Kpoints()
+        set_kpoints(
+            incar, manual, structure, scheme="Manual",
+            manual_kpoints=[[0, 0, 0]], reciprocal=False,
+        )
+        self.assertEqual(manual[2:4], ["Cartesian", "0 0 0 1.0"])
+        manual.load_string("header\n1\nGamma\n")
+        manual[3] = "1 1 1"
+        with self.assertRaises(IndexError):
+            manual[5] = "invalid"
+        self.assertEqual(manual.get_string_lst(), ["header\n", "1\n", "Gamma\n", "1 1 1\n"])
+
 
 class TestPotentials(unittest.TestCase):
     def test_resource_path(self):
@@ -192,6 +236,15 @@ class TestPotentials(unittest.TestCase):
         ):  # the LDA potentials are not part of the test resources
             get_potcar_files(fe_bcc(), xc="LDA", resource_path=RESOURCE_PATH)
         self.assertEqual(get_nelect(fe_bcc(), resource_path=RESOURCE_PATH), 16.0)
+
+    def test_resource_environment_and_invalid_xc(self):
+        with patch.dict(os.environ, {"VASPPARSER_RESOURCE_PATH": RESOURCE_PATH}, clear=True):
+            self.assertEqual(get_resource_path(), os.path.join(RESOURCE_PATH, "potentials"))
+        with patch.dict(os.environ, {"CONDA_PREFIX": STATIC}, clear=True):
+            with self.assertRaisesRegex(ValueError, "No VASP potential tables"):
+                get_resource_path()
+        with self.assertRaisesRegex(ValueError, "exchange correlation"):
+            get_potential_table(xc="unknown", resource_path=RESOURCE_PATH)
 
 
 class TestCalculate(unittest.TestCase):
@@ -336,6 +389,61 @@ class TestCalculate(unittest.TestCase):
         with self.assertRaises(ValueError):
             get_icharg_value(icharg=3)
 
+    def test_setter_validation_and_alternatives(self):
+        incar = Incar()
+        set_algorithm(incar, ialgo=38)
+        self.assertEqual(incar["IALGO"], 38)
+        with self.assertWarnsRegex(UserWarning, "unusual"):
+            set_algorithm(incar, algorithm="Custom")
+        calc_minimize(incar, algorithm="Normal", ionic_energy_tolerance=0.002)
+        self.assertEqual((incar["ALGO"], incar["EDIFFG"]), ("Normal", 0.002))
+        set_occupancy_smearing(incar, ismear=-5)
+        self.assertEqual(incar["ISMEAR"], -5)
+        with self.assertRaises(ValueError):
+            set_occupancy_smearing(incar)
+        with self.assertRaises(ValueError):
+            set_electric_field(incar, direction=3)
+        set_fft_mesh(incar, ny=7)
+        self.assertEqual(incar["NGYF"], 7)
+        set_mixing_parameters(incar)
+        self.assertEqual(incar["IMIX"], 4)
+        with self.assertRaises(NotImplementedError):
+            set_mixing_parameters(incar, spin_residual_scaling=0.5)
+        with self.assertRaises(ValueError):
+            set_write_wave_funct(incar, 1)
+        set_write_resolved_dos(incar, 11)
+        self.assertEqual(incar["LORBIT"], 11)
+        with self.assertRaises(ValueError):
+            set_write_resolved_dos(incar, "11")
+        for radii in ([], {"Fe": "bad"}, {"Al": 1.0}):
+            with self.subTest(radii=radii), self.assertRaises(ValueError):
+                set_rwigs(incar, fe_bcc(), radii)
+
+    def test_spin_constraint_validation(self):
+        structure = fe_bcc()
+        for kwargs in (
+            {"direction": 1},
+            {"norm": 1},
+            {"lamb": 1},
+            {},
+        ):
+            params = {"lamb": 1.0, "rwigs_dict": {"Fe": 1.0}, **kwargs}
+            with self.subTest(params=params), self.assertRaises(ValueError):
+                set_spin_constraint(Incar(), structure, **params)
+        incar = Incar()
+        set_spin_constraint(incar, structure, 1.0, {"Fe": 1.0}, direction=True, norm=True)
+        self.assertEqual(incar["I_CONSTRAINED_M"], 2)
+        structure.set_initial_magnetic_moments([1, -1])
+        with self.assertRaisesRegex(ValueError, "non collinear"):
+            write_magmoms(incar, structure)
+        structure.set_initial_magnetic_moments(None)
+        structure.set_initial_magnetic_moments([[0, 0, 1], [0, 0, -1]])
+        with self.assertRaisesRegex(ValueError, "RWIGS"):
+            write_magmoms(Incar(parameters={"I_CONSTRAINED_M": 1, "LAMBDA": 1}), structure)
+        incar = Incar(parameters={"ISPIN": 1})
+        write_magmoms(incar, structure)
+        self.assertIsNone(incar["MAGMOM"])
+
     @unittest.skipIf(
         importlib.util.find_spec("spglib") is None, "spglib is not installed"
     )
@@ -359,6 +467,49 @@ class TestCalculate(unittest.TestCase):
 
 
 class TestVaspInput(unittest.TestCase):
+    def test_setter_options_and_direct_kpoints(self):
+        files = get_vasp_input(
+            structure=fe_bcc(),
+            algorithm_kwargs={"ialgo": 38},
+            write_electrostatic_potential=True,
+            write_charge_density=True,
+            write_wave_funct=True,
+            write_resolved_dos=11,
+            dipole_correction_kwargs={"direction": 0, "dipole_center": [0.5, 0, 0]},
+            electric_field_kwargs={"e_field": 0.3, "direction": 1},
+            fft_mesh_kwargs={"nx": 10, "ny": 11, "nz": 12},
+            mixing_parameters_kwargs={"method": "pulay", "n_pulay_steps": 8},
+            rwigs_kwargs={"Fe": 1.2},
+            calc_kwargs={"retain_charge_density": True, "retain_electrostatic_potential": True},
+            kpoints_file="custom\n0\nGamma\n2 2 2\n0 0 0\n",
+            resource_path=RESOURCE_PATH,
+        )["files_to_create"]
+        incar = incar_dict(files["INCAR"])
+        for key, value in {
+            "IALGO": "38", "IDIPOL": "2", "EFIELD": "0.3", "DIPOL": "0.5 0 0",
+            "NGXF": "10", "NGYF": "11", "NGZF": "12", "IMIX": "4",
+            "MAXMIX": "8", "RWIGS": "1.2", "LORBIT": "11",
+        }.items():
+            with self.subTest(key=key):
+                self.assertEqual(incar[key], value)
+        self.assertTrue(all(incar[key] for key in ("LCHARG", "LVTOT", "LVHAR", "LWAVE")))
+        self.assertEqual(files["KPOINTS"], "custom\n0\nGamma\n2 2 2\n0 0 0\n")
+
+    @unittest.skipIf(importlib.util.find_spec("spglib") is None, "spglib is not installed")
+    def test_band_structure_input(self):
+        files = get_vasp_input(
+            structure=bulk("Al", a=4.0),
+            band_structure_calc_kwargs={"num_points": 10, "read_charge_density": True},
+            potentials={"Al": "Al_GW"},
+            resource_path=RESOURCE_PATH,
+        )["files_to_create"]
+        incar = incar_dict(files["INCAR"])
+        self.assertEqual((incar["ICHARG"], incar["ISYM"]), ("11", "-1"))
+        lines = files["KPOINTS"].splitlines()
+        self.assertGreater(int(lines[1]), 10)
+        self.assertEqual(lines[2], "Cartesian")
+        self.assertEqual(len(lines) - 3, int(lines[1]))
+
     def test_get_vasp_input(self):
         structure = fe_bcc()
         structure.set_initial_magnetic_moments([2.0, 2.0])
@@ -512,12 +663,66 @@ class TestVaspInput(unittest.TestCase):
                 "ICHARG", incar_dict(input_dict["files_to_create"]["INCAR"])
             )
             self.assertEqual(sorted(input_dict["files_to_copy"]), ["CHGCAR", "INCAR"])
+            destination = os.path.join(directory, "new")
+            write_vasp_input(destination, input_dict)
+            with open(os.path.join(destination, "CHGCAR")) as f:
+                self.assertEqual(f.read(), "data")
+            with open(os.path.join(destination, "INCAR")) as f:
+                self.assertEqual(f.read(), "ICHARG = 11\n")
             with self.assertRaises(FileNotFoundError):
                 get_vasp_input(
                     structure=fe_bcc(),
                     restart_kwargs={"wave_function_file": directory + "/missing"},
                     resource_path=RESOURCE_PATH,
                 )
+
+    def test_restart_without_previous_incar(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(restart_from_charge_density(directory).icharg, 1)
+
+
+class TestOutput(unittest.TestCase):
+    def test_convergence_modes(self):
+        def output(steps, occupancy=None):
+            return {
+                "generic": {"dft": {"scf_energy_free": [list(range(n)) for n in steps]}},
+                "electronic_structure": {"occ_matrix": occupancy},
+            }
+
+        cases = [
+            ({"IBRION": -1, "NSW": 0, "NELM": 3}, [2], None, True),
+            ({"IBRION": -1, "NSW": 0, "NELM": 3}, [3], None, False),
+            ({"IBRION": 2, "NSW": 3, "NELM": 3}, [3, 2], None, True),
+            ({"IBRION": 2, "NSW": 2, "NELM": 3}, [2, 2], None, False),
+            ({"IBRION": 2, "NSW": 3, "NELM": 3}, [2, 3], None, False),
+            ({"IBRION": 0, "NSW": 2, "NELM": 3}, [3, 3], None, True),
+            ({"ALGO": "Exact", "NELM": 1}, [1], None, True),
+            ({"ALGO": "Exact", "NELM": 1}, [1], [[[1, 0.1]]], False),
+            ({"IBRION": -1, "NELM": 3}, [2], [[[1, 0]]], True),
+        ]
+        for incar, steps, occupancy, expected in cases:
+            with self.subTest(incar=incar, steps=steps, occupancy=occupancy):
+                self.assertEqual(check_convergence("", output(steps, occupancy), incar), expected)
+
+    def test_structure_at_selected_step(self):
+        structure = fe_bcc()
+        positions = [np.array([[2.8, 0, 0], [1.4, 1.4, 1.4]]), np.zeros((2, 3))]
+        parsed = {
+            "generic": {
+                "cells": [structure.cell.array, np.eye(3) * 4],
+                "positions": positions,
+                "dft": {"final_magmoms": [[1, -1], [2, -2]]},
+            }
+        }
+        first = structure_from_parsed_output(structure, parsed, index=0)
+        np.testing.assert_allclose(first.positions[0], [0, 0, 0], atol=1e-12)
+        np.testing.assert_allclose(first.get_initial_magnetic_moments(), [1, -1])
+        unwrapped = structure_from_parsed_output(
+            structure, parsed, index=0, wrap=False, magnetic_moments=False
+        )
+        np.testing.assert_allclose(unwrapped.positions, positions[0])
+        self.assertNotIn("initial_magmoms", unwrapped.arrays)
+        np.testing.assert_allclose(structure.positions[0], [0, 0, 0])
 
 
 class TestVaspFileInterfaceFunction(unittest.TestCase):
@@ -593,6 +798,34 @@ class TestVaspFileInterfaceFunction(unittest.TestCase):
         self.assertEqual(len(messages), 2)
         self.assertIn("first in ionic step 1", messages[0])
         self.assertEqual(collect_errors(os.path.join(self.tmp.name, "missing")), [])
+
+    def test_command_selection_and_error_warnings(self):
+        message = "WARNING in EDDRMM: call to ZHEGV failed, returncode = 6\n"
+        with (
+            patch("vaspparser.compatibility.file.subprocess.run", return_value=SimpleNamespace(stdout=message)) as run,
+            patch("vaspparser.compatibility.file.parse_vasp_output", return_value={"parsed": True}),
+            patch.dict(os.environ, {"ASE_VASP_COMMAND": "environment-vasp"}),
+        ):
+            with self.assertWarnsRegex(UserWarning, "EDDRMM"):
+                result = vasp_file_interface_function(
+                    working_directory=os.path.join(self.tmp.name, "script"),
+                    structure=fe_bcc(),
+                    executable_path="run-vasp",
+                    vasp_command="ignored",
+                    server_kwargs={"cores": 4, "threads": 2},
+                    eddrmm_handling="restart",
+                    resource_path=RESOURCE_PATH,
+                )
+            self.assertEqual(result, (message, {"parsed": True}, False))
+            self.assertEqual(run.call_args.args[0], "run-vasp 4 2")
+            self.assertEqual(run.call_args.kwargs["env"]["PYIRON_CORES"], "4")
+            self.assertEqual(run.call_args.kwargs["env"]["PYIRON_THREADS"], "2")
+            vasp_file_interface_function(
+                working_directory=os.path.join(self.tmp.name, "environment"),
+                structure=fe_bcc(),
+                resource_path=RESOURCE_PATH,
+            )
+            self.assertEqual(run.call_args.args[0], "environment-vasp")
 
 
 if __name__ == "__main__":
