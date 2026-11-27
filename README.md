@@ -179,7 +179,8 @@ restarts from previous calculations use the helpers `restart_from_charge_density
 `restart_from_wave_functions()`, `restart_from_wave_and_charge()` and
 `restart_for_band_structure_calculations()`. The input files can be generated without running
 VASP with `get_vasp_input()`. The band structure helpers need the optional `spglib` and
-`seekpath` packages (`pip install vaspparser[compatibility]`).
+`seekpath` packages (`pip install vaspparser[compatibility]`). The notebook
+[`notebooks/compatibility.ipynb`](notebooks/compatibility.ipynb) demonstrates all options.
 
 ## Documentation
 
@@ -194,4 +195,5 @@ VASP with `get_vasp_input()`. The band structure helpers need the optional `spgl
   * [Electronic structure: DOS and band gap](https://vaspparser.readthedocs.io/en/latest/demo.html#electronic-structure-dos-and-band-gap)
   * [Volumetric data: charge density](https://vaspparser.readthedocs.io/en/latest/demo.html#volumetric-data-charge-density)
   * [Bader charge analysis](https://vaspparser.readthedocs.io/en/latest/demo.html#bader-charge-analysis)
+* [Running VASP with the pyiron compatibility interface](https://vaspparser.readthedocs.io/en/latest/compatibility.html)
 * [Interface](https://vaspparser.readthedocs.io/en/latest/api.html)
