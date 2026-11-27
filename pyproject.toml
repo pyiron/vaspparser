@@ -43,7 +43,7 @@ plot = [
 ]
 compatibility = [
     "seekpath==2.2.2",
-    "spglib==2.7.0",
+    "spglib==2.8.0",
 ]
 docs = [
     "myst-parser",
